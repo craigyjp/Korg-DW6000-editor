@@ -14,5 +14,6 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * CC message control
 * Master control sends all params for each patch from memory to the DW.
 * slave mode, edits the DWs own patches.
+* Reload of factory patches from the settings memu
 
   
