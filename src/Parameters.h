@@ -5,6 +5,9 @@ byte midiOutCh = 1;//(EEPROM)
 int readresdivider = 32;
 int resolutionFrig = 5;
 boolean recallPatchFlag = true;
+boolean loadFactory = false;
+char buffer[10];
+char newChar = '0';
 
 int MIDIThru = midi::Thru::Off;//(EEPROM)
 String patchName = INITPATCHNAME;

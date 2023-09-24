@@ -175,6 +175,270 @@ void myPitchBend(byte channel, int bend) {
 void allNotesOff() {
 }
 
+void checkLoadFactory() {
+  loadFactory = getLoadFactory();
+  if (loadFactory) {
+
+    for (int row = 0; row < 64; row++) {
+      String currentRow = factory[row];
+
+      String values[38];   // Assuming you have 38 values per row
+      int valueIndex = 0;  // Index for storing values
+      for (int i = 0; i < currentRow.length(); i++) {
+        char currentChar = currentRow.charAt(i);
+
+        // Check for the delimiter (",") and move to the next value
+        if (currentChar == ',') {
+          valueIndex++;  // Move to the next value
+          continue;      // Skip the delimiter
+        }
+
+        // Append the character to the current value
+        values[valueIndex] += currentChar;
+      }
+
+      // Process the values
+      int intValues[38];
+      for (int i = 0; i < 38; i++) {  // Adjust the loop count based on the number of values per row
+        switch (i) {
+
+          case 0:
+            patchName = values[i];
+            break;
+
+          case 1:
+            intValues[i] = values[i].toInt();
+            switch (intValues[i]) {
+              case 16:
+                osc1_octave = 0;
+                break;
+              case 8:
+                osc1_octave = 1;
+                break;
+              case 4:
+                osc1_octave = 2;
+                break;
+            }
+            break;
+
+          case 2:
+            intValues[i] = values[i].toInt();
+            osc1_waveform = (intValues[i] - 1);
+            break;
+
+          case 3:  // osc1_level
+            intValues[i] = values[i].toInt();
+            osc1_level = intValues[i];
+            break;
+
+          case 4:
+            intValues[i] = values[i].toInt();
+            switch (intValues[i]) {
+              case 16:
+                osc2_octave = 0;
+                break;
+              case 8:
+                osc2_octave = 1;
+                break;
+              case 4:
+                osc2_octave = 2;
+                break;
+            }
+            break;
+
+          case 5:
+            intValues[i] = values[i].toInt();
+            osc2_waveform = (intValues[i] - 1);
+            break;
+
+          case 6:  // osc2_level
+            intValues[i] = values[i].toInt();
+            osc2_level = intValues[i];
+            break;
+
+          case 7:
+            intValues[i] = values[i].toInt();
+            switch (intValues[i]) {
+              case 1:
+                osc2_interval = 0;
+                break;
+              case 3:
+                osc2_interval = 1;
+                break;
+              case -3:
+                osc2_interval = 2;
+                break;
+              case 4:
+                osc2_interval = 3;
+                break;
+              case 5:
+                osc2_interval = 4;
+                break;
+            }
+            break;
+
+          case 8:
+            intValues[i] = values[i].toInt();
+            osc2_detune = (intValues[i] - 1);
+            break;
+
+          case 9:  // moise_level
+            intValues[i] = values[i].toInt();
+            noise = intValues[i];
+            break;
+
+          case 10:  // cutoff
+            intValues[i] = values[i].toInt();
+            vcf_cutoff = intValues[i];
+            break;
+
+          case 11:  // res
+            intValues[i] = values[i].toInt();
+            vcf_res = intValues[i];;
+            break;
+
+          case 12:  // kbdtrack
+            intValues[i] = values[i].toInt();
+            vcf_kbdtrack = intValues[i];
+            break;
+
+          case 13:  // polarity
+            intValues[i] = values[i].toInt();
+            vcf_polarity = (intValues[i] - 1);
+            break;
+
+          case 14:  // eg_intensity
+            intValues[i] = values[i].toInt();
+            vcf_eg_intensity = intValues[i];
+            break;
+
+          case 15:  // chorus
+            intValues[i] = values[i].toInt();
+            chorus = intValues[i];
+            break;
+
+          case 16:  // vcf_attack
+            intValues[i] = values[i].toInt();
+            vcf_attack = intValues[i];
+            break;
+
+          case 17:  // vcf_decay
+            intValues[i] = values[i].toInt();
+            vcf_decay = intValues[i];
+            break;
+
+          case 18:  // vcf_bp
+            intValues[i] = values[i].toInt();
+            vcf_breakpoint = intValues[i];
+            break;
+
+          case 19:  // vcf_slope
+            intValues[i] = values[i].toInt();
+            vcf_slope = intValues[i];
+            break;
+
+          case 20:  // vcf_sustain
+            intValues[i] = values[i].toInt();
+            vcf_sustain = intValues[i];
+            break;
+
+          case 21:  // vcf_release
+            intValues[i] = values[i].toInt();
+            vcf_release = intValues[i];
+            break;
+
+          case 22:  // vca_attack
+            intValues[i] = values[i].toInt();
+            vca_attack = intValues[i];
+            break;
+
+          case 23:  // vca_decay
+            intValues[i] = values[i].toInt();
+            vca_decay = intValues[i];
+            break;
+
+          case 24:  // vca_bp
+            intValues[i] = values[i].toInt();
+            vca_breakpoint = intValues[i];
+            break;
+
+          case 25:  // vca_slope
+            intValues[i] = values[i].toInt();
+            vca_slope = intValues[i];
+            break;
+
+          case 26:  // vca_sustain
+            intValues[i] = values[i].toInt();
+            vca_sustain = intValues[i];
+            break;
+
+          case 27:  // vca_release
+            intValues[i] = values[i].toInt();
+            vca_release = intValues[i];
+            break;
+
+          case 28:  // mg_freq
+            intValues[i] = values[i].toInt();
+            mg_frequency = intValues[i];
+            break;
+
+          case 29:  // mg_delay
+            intValues[i] = values[i].toInt();
+            mg_delay = intValues[i];
+            break;
+
+          case 30:  // mg_osc
+            intValues[i] = values[i].toInt();
+            mg_osc = intValues[i];
+            break;
+
+          case 31:  // mg_vcf
+            intValues[i] = values[i].toInt();
+            mg_vcf = intValues[i];
+            break;
+
+          case 32:  // bend_osc
+            intValues[i] = values[i].toInt();
+            bend_osc = intValues[i];
+            break;
+
+          case 33:  // bend_vcf
+            intValues[i] = values[i].toInt();
+            bend_vcf = intValues[i];;
+            break;
+
+          case 34:  // glide
+            intValues[i] = values[i].toInt();
+            glide_time = intValues[i];
+            break;
+
+          case 35:  // poly1
+            intValues[i] = values[i].toInt();
+            poly1 = intValues[i];
+            break;
+
+          case 36:  // poly2
+            intValues[i] = values[i].toInt();
+            poly2 = intValues[i];
+            break;
+
+          case 37:  // unison
+            intValues[i] = values[i].toInt();
+            unison = intValues[i];
+            break;
+        }
+      }
+      // Add a newline to separate rows (optional)
+      sprintf(buffer, "%d", row + 1);
+      savePatch(buffer, getCurrentPatchData());
+      updatePatchname();
+    }
+    loadPatches();
+    loadFactory = false;
+    storeLoadFactory(loadFactory);
+  }
+}
+
 void updateosc1_octave() {
   switch (osc1_octave) {
     case 2:
@@ -1367,4 +1631,5 @@ void loop() {
   checkEncoder();
   MIDI.read(midiChannel);
   usbMIDI.read(midiChannel);
+  checkLoadFactory();
 }

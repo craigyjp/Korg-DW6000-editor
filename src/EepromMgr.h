@@ -4,6 +4,7 @@
 #define EEPROM_ENCODER_DIR 1
 #define EEPROM_LAST_PATCH 2
 #define EEPROM_MIDI_OUT_CH 3
+#define EEPROM_LOAD_FACTORY 4
 #define EEPROM_UPDATE_PARAMS 5
 
 int getMIDIChannel() {
@@ -58,4 +59,15 @@ int getMIDIOutCh() {
 
 void storeMidiOutCh(byte midiOutCh){
   EEPROM.update(EEPROM_MIDI_OUT_CH, midiOutCh);
+}
+
+boolean getLoadFactory() {
+  byte lf = EEPROM.read(EEPROM_LOAD_FACTORY); 
+  if (lf < 0 || lf > 1)return true;
+  return lf;
+}
+
+void storeLoadFactory(byte lfupdate)
+{
+  EEPROM.update(EEPROM_LOAD_FACTORY, lfupdate);
 }
