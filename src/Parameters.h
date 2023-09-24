@@ -55,10 +55,6 @@ int bend_vcfstr = 0;
 
 int glide_time = 0;
 
-int midi_channel = 0;
-int midi_enable = 0;
-int midi_omni = 0;
-
 int poly1 = 0;
 int poly2 = 0;
 int unison = 0;

@@ -508,35 +508,6 @@ void updateglide_time() {
   midiCCOut(CCglide_time, 1, glide_time);
 }
 
-void updatemidi_channel() {
-  showCurrentParameterPage("MIDI Channel", String(midi_channel + 1));
-  midiCCOut(CCmidi_channel, 26, midi_channel);
-}
-
-void updatemidi_enable() {
-  switch (midi_enable) {
-    case 0:
-      showCurrentParameterPage("MIDI Enable", String("Note Data"));
-      break;
-    case 1:
-      showCurrentParameterPage("MIDI Enable", String("All"));
-      break;
-  }
-  midiCCOut(CCmidi_enable, 27, midi_enable);
-}
-
-void updatemidi_omni() {
-  switch (midi_omni) {
-    case 0:
-      showCurrentParameterPage("Omni Mode", String("Off"));
-      break;
-    case 1:
-      showCurrentParameterPage("Omni Mode", String("On"));
-      break;
-  }
-  midiCCOut(CCmidi_omni, 28, midi_omni);
-}
-
 void updatePoly1() {
   if (poly1 == 1) {
     showCurrentParameterPage("Poly1 Mode", String("On"));
@@ -790,24 +761,6 @@ void myControlChange(byte channel, byte control, int value) {
       updateglide_time();
       break;
 
-    case CCmidi_channel:
-      midi_channel = value;
-      midi_channel = map(midi_channel, 0, 127, 0, 15);
-      updatemidi_channel();
-      break;
-
-    case CCmidi_enable:
-      midi_enable = value;
-      midi_enable = map(midi_enable, 0, 127, 0, 1);
-      updatemidi_enable();
-      break;
-
-    case CCmidi_omni:
-      midi_omni = value;
-      midi_omni = map(midi_omni, 0, 127, 0, 1);
-      updatemidi_omni();
-      break;
-
     case CCpoly1:
       //value > 0 ? poly1 = 1 : poly1 = 0;
       updatePoly1();
@@ -892,12 +845,9 @@ void setCurrentPatchData(String data[]) {
   bend_osc = data[32].toInt();
   bend_vcf = data[33].toInt();
   glide_time = data[34].toInt();
-  midi_channel = data[35].toInt();
-  midi_enable = data[36].toInt();
-  midi_omni = data[37].toInt();
-  poly1 = data[38].toInt();
-  poly2 = data[39].toInt();
-  unison = data[40].toInt();
+  poly1 = data[35].toInt();
+  poly2 = data[36].toInt();
+  unison = data[37].toInt();
 
   updatePoly1();
   updatePoly2();
@@ -918,7 +868,7 @@ String getCurrentPatchData() {
          + "," + String(vca_attack) + "," + String(vca_decay) + "," + String(vca_breakpoint) + "," + String(vca_slope) + "," + String(vca_sustain) + "," + String(vca_release)
          + "," + String(mg_frequency) + "," + String(mg_delay) + "," + String(mg_osc) + "," + String(mg_vcf)
          + "," + String(bend_osc) + "," + String(bend_vcf) + "," + String(glide_time)
-         + "," + String(midi_channel) + "," + String(midi_enable) + "," + String(midi_omni) + "," + String(poly1) + "," + String(poly2) + "," + String(unison);
+         + "," + String(poly1) + "," + String(poly2) + "," + String(unison);
 }
 
 void checkMux() {
@@ -1052,15 +1002,6 @@ void checkMux() {
         break;
       case MUX3_glide_time:
         myControlChange(midiChannel, CCglide_time, mux3Read);
-        break;
-      case MUX3_midi_channel:
-        myControlChange(midiChannel, CCmidi_channel, mux3Read);
-        break;
-      case MUX3_midi_enable:
-        myControlChange(midiChannel, CCmidi_enable, mux3Read);
-        break;
-      case MUX3_midi_omni:
-        myControlChange(midiChannel, CCmidi_omni, mux3Read);
         break;
     }
   }
