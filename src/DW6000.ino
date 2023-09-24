@@ -69,6 +69,7 @@ int voiceToReturn = -1;        //Initialise
 long earliestTime = millis();  //For voice allocation - initialise to now
 
 byte byteArray[8];
+byte writeRequest[7];
 
 void setup() {
   SPI.begin();
@@ -80,10 +81,18 @@ void setup() {
   byteArray[1] = 0x42;  // Manufacturer ID (example value)
   byteArray[2] = 0x30;  // Data byte 1 (example value)
   byteArray[3] = 0x04;  // Data byte 2 (example value)
-  byteArray[4] = 0x41;  // Data byte 3 (example value)
+  byteArray[4] = 0x41;  // Parameter Change
   byteArray[5] = 0x00;
   byteArray[6] = 0x00;
-  byteArray[7] = 0xF7;
+  byteArray[7] = 0xF7;  // End of Exclusive
+
+  writeRequest[0] = 0xF0;  // Start of SysEx
+  writeRequest[1] = 0x42;  // Manufacturer ID (example value)
+  writeRequest[2] = 0x30;  // Format ID 42H
+  writeRequest[3] = 0x04;  // DW6000 ID
+  writeRequest[4] = 0x11;  // Write request
+  writeRequest[5] = 0x00;
+  writeRequest[6] = 0xF7;  // End of Exclusive
 
   cardStatus = SD.begin(BUILTIN_SDCARD);
   if (cardStatus) {
@@ -175,606 +184,412 @@ void myPitchBend(byte channel, int bend) {
 void allNotesOff() {
 }
 
-void checkLoadFactory() {
-  loadFactory = getLoadFactory();
-  if (loadFactory) {
-
-    for (int row = 0; row < 64; row++) {
-      String currentRow = factory[row];
-
-      String values[38];   // Assuming you have 38 values per row
-      int valueIndex = 0;  // Index for storing values
-      for (int i = 0; i < currentRow.length(); i++) {
-        char currentChar = currentRow.charAt(i);
-
-        // Check for the delimiter (",") and move to the next value
-        if (currentChar == ',') {
-          valueIndex++;  // Move to the next value
-          continue;      // Skip the delimiter
-        }
-
-        // Append the character to the current value
-        values[valueIndex] += currentChar;
-      }
-
-      // Process the values
-      int intValues[38];
-      for (int i = 0; i < 38; i++) {  // Adjust the loop count based on the number of values per row
-        switch (i) {
-
-          case 0:
-            patchName = values[i];
-            break;
-
-          case 1:
-            intValues[i] = values[i].toInt();
-            switch (intValues[i]) {
-              case 16:
-                osc1_octave = 0;
-                break;
-              case 8:
-                osc1_octave = 1;
-                break;
-              case 4:
-                osc1_octave = 2;
-                break;
-            }
-            break;
-
-          case 2:
-            intValues[i] = values[i].toInt();
-            osc1_waveform = (intValues[i] - 1);
-            break;
-
-          case 3:  // osc1_level
-            intValues[i] = values[i].toInt();
-            osc1_level = intValues[i];
-            break;
-
-          case 4:
-            intValues[i] = values[i].toInt();
-            switch (intValues[i]) {
-              case 16:
-                osc2_octave = 0;
-                break;
-              case 8:
-                osc2_octave = 1;
-                break;
-              case 4:
-                osc2_octave = 2;
-                break;
-            }
-            break;
-
-          case 5:
-            intValues[i] = values[i].toInt();
-            osc2_waveform = (intValues[i] - 1);
-            break;
-
-          case 6:  // osc2_level
-            intValues[i] = values[i].toInt();
-            osc2_level = intValues[i];
-            break;
-
-          case 7:
-            intValues[i] = values[i].toInt();
-            switch (intValues[i]) {
-              case 1:
-                osc2_interval = 0;
-                break;
-              case 3:
-                osc2_interval = 1;
-                break;
-              case -3:
-                osc2_interval = 2;
-                break;
-              case 4:
-                osc2_interval = 3;
-                break;
-              case 5:
-                osc2_interval = 4;
-                break;
-            }
-            break;
-
-          case 8:
-            intValues[i] = values[i].toInt();
-            osc2_detune = (intValues[i] - 1);
-            break;
-
-          case 9:  // moise_level
-            intValues[i] = values[i].toInt();
-            noise = intValues[i];
-            break;
-
-          case 10:  // cutoff
-            intValues[i] = values[i].toInt();
-            vcf_cutoff = intValues[i];
-            break;
-
-          case 11:  // res
-            intValues[i] = values[i].toInt();
-            vcf_res = intValues[i];;
-            break;
-
-          case 12:  // kbdtrack
-            intValues[i] = values[i].toInt();
-            vcf_kbdtrack = intValues[i];
-            break;
-
-          case 13:  // polarity
-            intValues[i] = values[i].toInt();
-            vcf_polarity = (intValues[i] - 1);
-            break;
-
-          case 14:  // eg_intensity
-            intValues[i] = values[i].toInt();
-            vcf_eg_intensity = intValues[i];
-            break;
-
-          case 15:  // chorus
-            intValues[i] = values[i].toInt();
-            chorus = intValues[i];
-            break;
-
-          case 16:  // vcf_attack
-            intValues[i] = values[i].toInt();
-            vcf_attack = intValues[i];
-            break;
-
-          case 17:  // vcf_decay
-            intValues[i] = values[i].toInt();
-            vcf_decay = intValues[i];
-            break;
-
-          case 18:  // vcf_bp
-            intValues[i] = values[i].toInt();
-            vcf_breakpoint = intValues[i];
-            break;
-
-          case 19:  // vcf_slope
-            intValues[i] = values[i].toInt();
-            vcf_slope = intValues[i];
-            break;
-
-          case 20:  // vcf_sustain
-            intValues[i] = values[i].toInt();
-            vcf_sustain = intValues[i];
-            break;
-
-          case 21:  // vcf_release
-            intValues[i] = values[i].toInt();
-            vcf_release = intValues[i];
-            break;
-
-          case 22:  // vca_attack
-            intValues[i] = values[i].toInt();
-            vca_attack = intValues[i];
-            break;
-
-          case 23:  // vca_decay
-            intValues[i] = values[i].toInt();
-            vca_decay = intValues[i];
-            break;
-
-          case 24:  // vca_bp
-            intValues[i] = values[i].toInt();
-            vca_breakpoint = intValues[i];
-            break;
-
-          case 25:  // vca_slope
-            intValues[i] = values[i].toInt();
-            vca_slope = intValues[i];
-            break;
-
-          case 26:  // vca_sustain
-            intValues[i] = values[i].toInt();
-            vca_sustain = intValues[i];
-            break;
-
-          case 27:  // vca_release
-            intValues[i] = values[i].toInt();
-            vca_release = intValues[i];
-            break;
-
-          case 28:  // mg_freq
-            intValues[i] = values[i].toInt();
-            mg_frequency = intValues[i];
-            break;
-
-          case 29:  // mg_delay
-            intValues[i] = values[i].toInt();
-            mg_delay = intValues[i];
-            break;
-
-          case 30:  // mg_osc
-            intValues[i] = values[i].toInt();
-            mg_osc = intValues[i];
-            break;
-
-          case 31:  // mg_vcf
-            intValues[i] = values[i].toInt();
-            mg_vcf = intValues[i];
-            break;
-
-          case 32:  // bend_osc
-            intValues[i] = values[i].toInt();
-            bend_osc = intValues[i];
-            break;
-
-          case 33:  // bend_vcf
-            intValues[i] = values[i].toInt();
-            bend_vcf = intValues[i];;
-            break;
-
-          case 34:  // glide
-            intValues[i] = values[i].toInt();
-            glide_time = intValues[i];
-            break;
-
-          case 35:  // poly1
-            intValues[i] = values[i].toInt();
-            poly1 = intValues[i];
-            break;
-
-          case 36:  // poly2
-            intValues[i] = values[i].toInt();
-            poly2 = intValues[i];
-            break;
-
-          case 37:  // unison
-            intValues[i] = values[i].toInt();
-            unison = intValues[i];
-            break;
-        }
-      }
-      // Add a newline to separate rows (optional)
-      sprintf(buffer, "%d", row + 1);
-      savePatch(buffer, getCurrentPatchData());
-      updatePatchname();
-    }
-    loadPatches();
-    loadFactory = false;
-    storeLoadFactory(loadFactory);
-  }
-}
-
 void updateosc1_octave() {
-  switch (osc1_octave) {
-    case 2:
-      showCurrentParameterPage("Osc1 Octave", String("4 Foot"));
-      break;
-    case 1:
-      showCurrentParameterPage("Osc1 Octave", String("8 Foot"));
-      break;
-    case 0:
-      showCurrentParameterPage("Osc1 Octave", String("16 Foot"));
-      break;
+  if (!recallPatchFlag) {
+    switch (osc1_octave) {
+      case 2:
+        showCurrentParameterPage("Osc1 Octave", String("4 Foot"));
+        break;
+      case 1:
+        showCurrentParameterPage("Osc1 Octave", String("8 Foot"));
+        break;
+      case 0:
+        showCurrentParameterPage("Osc1 Octave", String("16 Foot"));
+        break;
+    }
   }
   midiCCOut(CCosc1_octave, 19, osc1_octave);
 }
 
 void updateosc1_waveform() {
-  switch (osc1_waveform) {
-    case 0:
-      showCurrentParameterPage("Osc1 Wave", String("Brass/Strings"));
-      break;
+  if (!recallPatchFlag) {
+    switch (osc1_waveform) {
+      case 0:
+        showCurrentParameterPage("Osc1 Wave", String("Brass/Strings"));
+        break;
 
-    case 1:
-      showCurrentParameterPage("Osc1 Wave", String("Violin"));
-      break;
+      case 1:
+        showCurrentParameterPage("Osc1 Wave", String("Violin"));
+        break;
 
-    case 2:
-      showCurrentParameterPage("Osc1 Wave", String("A Piano"));
-      break;
+      case 2:
+        showCurrentParameterPage("Osc1 Wave", String("A Piano"));
+        break;
 
-    case 3:
-      showCurrentParameterPage("Osc1 Wave", String("E Piano"));
-      break;
+      case 3:
+        showCurrentParameterPage("Osc1 Wave", String("E Piano"));
+        break;
 
-    case 4:
-      showCurrentParameterPage("Osc1 Wave", String("Synth Bass"));
-      break;
+      case 4:
+        showCurrentParameterPage("Osc1 Wave", String("Synth Bass"));
+        break;
 
-    case 5:
-      showCurrentParameterPage("Osc1 Wave", String("Saxaphone"));
-      break;
+      case 5:
+        showCurrentParameterPage("Osc1 Wave", String("Saxaphone"));
+        break;
 
-    case 6:
-      showCurrentParameterPage("Osc1 Wave", String("Clavi"));
-      break;
+      case 6:
+        showCurrentParameterPage("Osc1 Wave", String("Clavi"));
+        break;
 
-    case 7:
-      showCurrentParameterPage("Osc1 Wave", String("Bell & Gong"));
-      break;
+      case 7:
+        showCurrentParameterPage("Osc1 Wave", String("Bell & Gong"));
+        break;
+    }
   }
   midiCCOut(CCosc1_waveform, 24, osc1_waveform);
 }
 
 void updateosc1_level() {
-  if (osc1_level == 0) {
-    showCurrentParameterPage("Osc1 Level", String("Off"));
-  } else {
-    showCurrentParameterPage("Osc1 Level", String(osc1_level));
+  if (!recallPatchFlag) {
+    if (osc1_level == 0) {
+      showCurrentParameterPage("Osc1 Level", String("Off"));
+    } else {
+      showCurrentParameterPage("Osc1 Level", String(osc1_level));
+    }
   }
   midiCCOut(CCosc1_level, 2, osc1_level);
 }
 
 void updateosc2_octave() {
-  switch (osc2_octave) {
-    case 2:
-      showCurrentParameterPage("Osc2 Octave", String("4 Foot"));
-      break;
-    case 1:
-      showCurrentParameterPage("Osc2 Octave", String("8 Foot"));
-      break;
-    case 0:
-      showCurrentParameterPage("Osc2 Octave", String("16 Foot"));
-      break;
+  if (!recallPatchFlag) {
+    switch (osc2_octave) {
+      case 2:
+        showCurrentParameterPage("Osc2 Octave", String("4 Foot"));
+        break;
+      case 1:
+        showCurrentParameterPage("Osc2 Octave", String("8 Foot"));
+        break;
+      case 0:
+        showCurrentParameterPage("Osc2 Octave", String("16 Foot"));
+        break;
+    }
   }
   midiCCOut(CCosc2_octave, 20, osc2_octave);
 }
 
 void updateosc2_waveform() {
-  switch (osc2_waveform) {
-    case 0:
-      showCurrentParameterPage("Osc2 Wave", String("Brass/Strings"));
-      break;
+  if (!recallPatchFlag) {
+    switch (osc2_waveform) {
+      case 0:
+        showCurrentParameterPage("Osc2 Wave", String("Brass/Strings"));
+        break;
 
-    case 1:
-      showCurrentParameterPage("Osc2 Wave", String("Violin"));
-      break;
+      case 1:
+        showCurrentParameterPage("Osc2 Wave", String("Violin"));
+        break;
 
-    case 2:
-      showCurrentParameterPage("Osc2 Wave", String("A Piano"));
-      break;
+      case 2:
+        showCurrentParameterPage("Osc2 Wave", String("A Piano"));
+        break;
 
-    case 3:
-      showCurrentParameterPage("Osc2 Wave", String("E Piano"));
-      break;
+      case 3:
+        showCurrentParameterPage("Osc2 Wave", String("E Piano"));
+        break;
 
-    case 4:
-      showCurrentParameterPage("Osc2 Wave", String("Synth Bass"));
-      break;
+      case 4:
+        showCurrentParameterPage("Osc2 Wave", String("Synth Bass"));
+        break;
 
-    case 5:
-      showCurrentParameterPage("Osc2 Wave", String("Saxaphone"));
-      break;
+      case 5:
+        showCurrentParameterPage("Osc2 Wave", String("Saxaphone"));
+        break;
 
-    case 6:
-      showCurrentParameterPage("Osc2 Wave", String("Clavi"));
-      break;
+      case 6:
+        showCurrentParameterPage("Osc2 Wave", String("Clavi"));
+        break;
 
-    case 7:
-      showCurrentParameterPage("Osc2 Wave", String("Bell & Gong"));
-      break;
+      case 7:
+        showCurrentParameterPage("Osc2 Wave", String("Bell & Gong"));
+        break;
+    }
   }
   midiCCOut(CCosc2_waveform, 24, osc2_waveform);
 }
 
 void updateosc2_level() {
-  if (osc2_level == 0) {
-    showCurrentParameterPage("Osc2 Level", String("Off"));
-  } else {
-    showCurrentParameterPage("Osc2 Level", String(osc2_level));
+  if (!recallPatchFlag) {
+    if (osc2_level == 0) {
+      showCurrentParameterPage("Osc2 Level", String("Off"));
+    } else {
+      showCurrentParameterPage("Osc2 Level", String(osc2_level));
+    }
   }
   midiCCOut(CCosc2_level, 3, osc2_level);
 }
 
 void updateosc2_interval() {
-  switch (osc2_interval) {
-    case 0:
-      showCurrentParameterPage("Osc2 Interval", String("Off"));
-      break;
-    case 1:
-      showCurrentParameterPage("Osc2 Interval", String("-3"));
-      break;
-    case 2:
-      showCurrentParameterPage("Osc2 Interval", String("+3"));
-      break;
-    case 3:
-      showCurrentParameterPage("Osc2 Interval", String("+4"));
-      break;
-    case 4:
-      showCurrentParameterPage("Osc2 Interval", String("+5"));
-      break;
+  if (!recallPatchFlag) {
+    switch (osc2_interval) {
+      case 0:
+        showCurrentParameterPage("Osc2 Interval", String("Off"));
+        break;
+      case 1:
+        showCurrentParameterPage("Osc2 Interval", String("-3"));
+        break;
+      case 2:
+        showCurrentParameterPage("Osc2 Interval", String("+3"));
+        break;
+      case 3:
+        showCurrentParameterPage("Osc2 Interval", String("+4"));
+        break;
+      case 4:
+        showCurrentParameterPage("Osc2 Interval", String("+5"));
+        break;
+    }
   }
   midiCCOut(CCosc2_interval, 25, osc2_interval);
 }
 
 void updateosc2_detune() {
-  showCurrentParameterPage("Osc2 Detune", String(osc2_detune));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("Osc2 Detune", String(osc2_detune));
+  }
   midiCCOut(CCosc2_detune, 25, osc2_detune);
 }
 
 void updatenoise() {
-  if (noise == 0) {
-    showCurrentParameterPage("Noise Level", String("Off"));
-  } else {
-    showCurrentParameterPage("Noise Level", String(noise));
+  if (!recallPatchFlag) {
+    if (noise == 0) {
+      showCurrentParameterPage("Noise Level", String("Off"));
+    } else {
+      showCurrentParameterPage("Noise Level", String(noise));
+    }
   }
   midiCCOut(CCnoise, 4, noise);
 }
 
 void updatevcf_cutoff() {
-  showCurrentParameterPage("VCF Cutoff", String(vcf_cutoff));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Cutoff", String(vcf_cutoff));
+  }
   midiCCOut(CCvcf_cutoff, 5, vcf_cutoff);
 }
 
 void updatevcf_res() {
-  showCurrentParameterPage("VCF Res", String(vcf_res));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Res", String(vcf_res));
+  }
   midiCCOut(CCvcf_res, 6, vcf_res);
 }
 
 void updatevcf_kbdtrack() {
-  switch (vcf_kbdtrack) {
-    case 0:
-      showCurrentParameterPage("KBD Track", String("Off"));
-      break;
-    case 1:
-      showCurrentParameterPage("KBD Track", String("Half"));
-      break;
-    case 2:
-      showCurrentParameterPage("KBD Track", String("Full"));
-      break;
+  if (!recallPatchFlag) {
+    switch (vcf_kbdtrack) {
+      case 0:
+        showCurrentParameterPage("KBD Track", String("Off"));
+        break;
+      case 1:
+        showCurrentParameterPage("KBD Track", String("Half"));
+        break;
+      case 2:
+        showCurrentParameterPage("KBD Track", String("Full"));
+        break;
+    }
   }
   midiCCOut(CCvcf_kbdtrack, 21, vcf_kbdtrack);
 }
 
 void updatevcf_polarity() {
-  switch (vcf_polarity) {
-    case 0:
-      showCurrentParameterPage("EG Polarity", String("Positive"));
-      break;
-    case 1:
-      showCurrentParameterPage("EG Polarity", String("Negative"));
-      break;
+  if (!recallPatchFlag) {
+    switch (vcf_polarity) {
+      case 0:
+        showCurrentParameterPage("EG Polarity", String("Positive"));
+        break;
+      case 1:
+        showCurrentParameterPage("EG Polarity", String("Negative"));
+        break;
+    }
   }
   midiCCOut(CCvcf_polarity, 22, vcf_polarity);
 }
 
 void updatevcf_eg_intensity() {
-  if (vcf_eg_intensity == 0) {
-    showCurrentParameterPage("VCF EG level", String("Off"));
-  } else {
-    showCurrentParameterPage("VCF EG level", String(vcf_eg_intensity));
+  if (!recallPatchFlag) {
+    if (vcf_eg_intensity == 0) {
+      showCurrentParameterPage("VCF EG level", String("Off"));
+    } else {
+      showCurrentParameterPage("VCF EG level", String(vcf_eg_intensity));
+    }
   }
   midiCCOut(CCvcf_eg_intensity, 7, vcf_eg_intensity);
 }
 
 void updatechorus() {
-  switch (chorus) {
-    case 0:
-      showCurrentParameterPage("Chorus", String("Off"));
-      break;
-    case 1:
-      showCurrentParameterPage("Chorus", String("On"));
-      break;
+  if (!recallPatchFlag) {
+    switch (chorus) {
+      case 0:
+        showCurrentParameterPage("Chorus", String("Off"));
+        break;
+      case 1:
+        showCurrentParameterPage("Chorus", String("On"));
+        break;
+    }
   }
   midiCCOut(CCchorus, 23, chorus);
 }
 
 void updatevcf_attack() {
-  showCurrentParameterPage("VCF Attack", String(vcf_attack));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Attack", String(vcf_attack));
+  }
   midiCCOut(CCvcf_attack, 8, vcf_attack);
 }
 
 void updatevcf_decay() {
-  showCurrentParameterPage("VCF Decay", String(vcf_decay));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Decay", String(vcf_decay));
+  }
   midiCCOut(CCvcf_decay, 9, vcf_decay);
 }
 
 void updatevcf_breakpoint() {
-  showCurrentParameterPage("VCF B.Point", String(vcf_breakpoint));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF B.Point", String(vcf_breakpoint));
+  }
   midiCCOut(CCvcf_breakpoint, 10, vcf_breakpoint);
 }
 
 void updatevcf_slope() {
-  showCurrentParameterPage("VCF Slope", String(vcf_slope));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Slope", String(vcf_slope));
+  }
   midiCCOut(CCvcf_slope, 11, vcf_slope);
 }
 
 void updatevcf_sustain() {
-  showCurrentParameterPage("VCF Sustain", String(vcf_sustain));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Sustain", String(vcf_sustain));
+  }
   midiCCOut(CCvcf_sustain, 12, vcf_sustain);
 }
 
 void updatevcf_release() {
-  showCurrentParameterPage("VCF Release", String(vcf_release));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCF Release", String(vcf_release));
+  }
   midiCCOut(CCvcf_release, 13, vcf_release);
 }
 
 void updatevca_attack() {
-  showCurrentParameterPage("VCA Attack", String(vca_attack));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCA Attack", String(vca_attack));
+  }
   midiCCOut(CCvca_attack, 14, vca_attack);
 }
 
 void updatevca_decay() {
-  showCurrentParameterPage("VCA Decay", String(vca_decay));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCA Decay", String(vca_decay));
+  }
   midiCCOut(CCvca_decay, 15, vca_decay);
 }
 
 void updatevca_breakpoint() {
-  showCurrentParameterPage("VCA B.Point", String(vca_breakpoint));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCA B.Point", String(vca_breakpoint));
+  }
   midiCCOut(CCvca_breakpoint, 16, vca_breakpoint);
 }
 
 void updatevca_slope() {
-  showCurrentParameterPage("VCA Slope", String(vca_slope));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCA Slope", String(vca_slope));
+  }
   midiCCOut(CCvca_slope, 17, vca_slope);
 }
 
 void updatevca_sustain() {
-  showCurrentParameterPage("VCA Sustain", String(vca_sustain));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCA Sustain", String(vca_sustain));
+  }
   midiCCOut(CCvca_sustain, 18, vca_sustain);
 }
 
 void updatevca_release() {
-  showCurrentParameterPage("VCA Release", String(vca_release));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("VCA Release", String(vca_release));
+  }
   midiCCOut(CCvca_release, 19, vca_release);
 }
 
 void updatemg_frequency() {
-  showCurrentParameterPage("MG Frequency", String(mg_frequency));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("MG Frequency", String(mg_frequency));
+  }
   midiCCOut(CCmg_frequency, 20, mg_frequency);
 }
 
 void updatemg_delay() {
-  showCurrentParameterPage("MG Delay", String(mg_delay));
+  if (!recallPatchFlag) {
+    showCurrentParameterPage("MG Delay", String(mg_delay));
+  }
   midiCCOut(CCmg_delay, 21, mg_delay);
 }
 
 void updatemg_osc() {
-  if (mg_osc == 0) {
-    showCurrentParameterPage("MG to Osc", String("Off"));
-  } else {
-    showCurrentParameterPage("MG to Osc", String(mg_osc));
+  if (!recallPatchFlag) {
+    if (mg_osc == 0) {
+      showCurrentParameterPage("MG to Osc", String("Off"));
+    } else {
+      showCurrentParameterPage("MG to Osc", String(mg_osc));
+    }
   }
   midiCCOut(CCmg_osc, 22, mg_osc);
 }
 
 void updatemg_vcf() {
-  if (mg_vcf == 0) {
-    showCurrentParameterPage("MG to VCF", String("Off"));
-  } else {
-    showCurrentParameterPage("MG to VCF", String(mg_vcf));
+  if (!recallPatchFlag) {
+    if (mg_vcf == 0) {
+      showCurrentParameterPage("MG to VCF", String("Off"));
+    } else {
+      showCurrentParameterPage("MG to VCF", String(mg_vcf));
+    }
   }
   midiCCOut(CCmg_vcf, 23, mg_vcf);
 }
 
 void updatebend_osc() {
-  if (bend_osc == 0) {
-    showCurrentParameterPage("Bend Range", String("Off"));
-  } else {
-    showCurrentParameterPage("Bend Range", String(bend_osc));
+  if (!recallPatchFlag) {
+    if (bend_osc == 0) {
+      showCurrentParameterPage("Bend Range", String("Off"));
+    } else {
+      showCurrentParameterPage("Bend Range", String(bend_osc));
+    }
   }
   midiCCOut(CCbend_osc, 0, bend_osc);
 }
 
 void updatebend_vcf() {
-  switch (bend_vcf) {
-    case 0:
-      showCurrentParameterPage("Bend to VCF", String("Off"));
-      break;
-    case 1:
-      showCurrentParameterPage("Bend to VCF", String("On"));
-      break;
+  if (!recallPatchFlag) {
+    switch (bend_vcf) {
+      case 0:
+        showCurrentParameterPage("Bend to VCF", String("Off"));
+        break;
+      case 1:
+        showCurrentParameterPage("Bend to VCF", String("On"));
+        break;
+    }
   }
   midiCCOut(CCbend_vcf, 18, bend_vcf);
 }
 
 void updateglide_time() {
-  if (glide_time == 0) {
-    showCurrentParameterPage("Portamento", String("Off"));
-  } else {
-    showCurrentParameterPage("Portamento", String(glide_time));
+  if (!recallPatchFlag) {
+    if (glide_time == 0) {
+      showCurrentParameterPage("Portamento", String("Off"));
+    } else {
+      showCurrentParameterPage("Portamento", String(glide_time));
+    }
   }
   midiCCOut(CCglide_time, 1, glide_time);
 }
 
 void updatePoly1() {
   if (poly1 == 1) {
-    showCurrentParameterPage("Poly1 Mode", String("On"));
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Poly1 Mode", String("On"));
+    }
     digitalWrite(POLY1_LED, HIGH);
     digitalWrite(POLY2_LED, LOW);
     digitalWrite(UNISON_LED, LOW);
@@ -788,7 +603,9 @@ void updatePoly1() {
 
 void updatePoly2() {
   if (poly2 == 1) {
-    showCurrentParameterPage("Poly2 Mode", String("On"));
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Poly2 Mode", String("On"));
+    }
     digitalWrite(POLY1_LED, LOW);
     digitalWrite(POLY2_LED, HIGH);
     digitalWrite(UNISON_LED, LOW);
@@ -802,7 +619,9 @@ void updatePoly2() {
 
 void updateUnison() {
   if (unison == 1) {
-    showCurrentParameterPage("Unison Mode", String("On"));
+    if (!recallPatchFlag) {
+      showCurrentParameterPage("Unison Mode", String("On"));
+    }
     digitalWrite(POLY1_LED, LOW);
     digitalWrite(POLY2_LED, LOW);
     digitalWrite(UNISON_LED, HIGH);
@@ -1124,6 +943,51 @@ void setCurrentPatchData(String data[]) {
   Serial.println(patchName);
 }
 
+void sendToSynth(int row) {
+
+  updateosc1_octave();
+  updateosc1_waveform();
+  updateosc1_level();
+  updateosc2_octave();
+  updateosc2_waveform();
+  updateosc2_level();
+  updateosc2_interval();
+  updateosc2_detune();
+  updatenoise();
+  updatevcf_cutoff();
+  updatevcf_res();
+  updatevcf_kbdtrack();
+  updatevcf_polarity();
+  updatevcf_eg_intensity();
+  updatechorus();
+  updatevcf_attack();
+  updatevcf_decay();
+  updatevcf_breakpoint();
+  updatevcf_slope();
+  updatevcf_sustain();
+  updatevcf_release();
+  updatevca_attack();
+  updatevca_decay();
+  updatevca_breakpoint();
+  updatevca_slope();
+  updatevca_sustain();
+  updatevca_release();
+  updatemg_frequency();
+  updatemg_delay();
+  updatemg_osc();
+  updatemg_vcf();
+  updatebend_osc();
+  updatebend_vcf();
+  updateglide_time();
+  updatePoly1();
+  updatePoly2();
+  updateUnison();
+
+  delay(2);
+  writeRequest[5] = row;
+  MIDI.sendSysEx(sizeof(writeRequest), writeRequest);
+}
+
 String getCurrentPatchData() {
   return patchName + "," + String(osc1_octave) + "," + String(osc1_waveform) + "," + String(osc1_level)
          + "," + String(osc2_octave) + "," + String(osc2_waveform) + "," + String(osc2_level) + "," + String(osc2_interval) + "," + String(osc2_detune) + "," + String(noise)
@@ -1331,21 +1195,18 @@ void midiCCOut(byte cc, int param_offset, byte value) {
   switch (ccType) {
     case 0:
       if (midiOutCh > 0) {
-        usbMIDI.sendControlChange(cc, value, midiOutCh);  //MIDI DIN is set to Out
-        MIDI.sendControlChange(cc, value, midiOutCh);     //MIDI DIN is set to Out
+        MIDI.sendControlChange(cc, value, midiOutCh);  //MIDI DIN is set to Out
       }
       break;
 
     case 1:
       if (midiOutCh > 0) {
-        usbMIDI.sendControlChange(cc, value, midiOutCh);  //MIDI DIN is set to Out
-        MIDI.sendControlChange(cc, value, midiOutCh);     //MIDI DIN is set to Out
+        MIDI.sendControlChange(cc, value, midiOutCh);  //MIDI DIN is set to Out
       }
       break;
 
     case 2:
       if (midiOutCh > 0) {
-        usbMIDI.sendSysEx(sizeof(byteArray), byteArray);
         MIDI.sendSysEx(sizeof(byteArray), byteArray);
       }
       break;
@@ -1624,6 +1485,276 @@ void checkEncoder() {
   }
 }
 
+void checkLoadFactory() {
+  loadFactory = getLoadFactory();
+  if (loadFactory) {
+
+    for (int row = 0; row < 64; row++) {
+      String currentRow = factory[row];
+
+      String values[38];   // Assuming you have 38 values per row
+      int valueIndex = 0;  // Index for storing values
+      for (int i = 0; i < currentRow.length(); i++) {
+        char currentChar = currentRow.charAt(i);
+
+        // Check for the delimiter (",") and move to the next value
+        if (currentChar == ',') {
+          valueIndex++;  // Move to the next value
+          continue;      // Skip the delimiter
+        }
+
+        // Append the character to the current value
+        values[valueIndex] += currentChar;
+      }
+
+      // Process the values
+      int intValues[38];
+      for (int i = 0; i < 38; i++) {  // Adjust the loop count based on the number of values per row
+        switch (i) {
+
+          case 0:
+            patchName = values[i];
+            break;
+
+          case 1:
+            intValues[i] = values[i].toInt();
+            switch (intValues[i]) {
+              case 16:
+                osc1_octave = 0;
+                break;
+              case 8:
+                osc1_octave = 1;
+                break;
+              case 4:
+                osc1_octave = 2;
+                break;
+            }
+            break;
+
+          case 2:
+            intValues[i] = values[i].toInt();
+            osc1_waveform = (intValues[i] - 1);
+            break;
+
+          case 3:  // osc1_level
+            intValues[i] = values[i].toInt();
+            osc1_level = intValues[i];
+            break;
+
+          case 4:
+            intValues[i] = values[i].toInt();
+            switch (intValues[i]) {
+              case 16:
+                osc2_octave = 0;
+                break;
+              case 8:
+                osc2_octave = 1;
+                break;
+              case 4:
+                osc2_octave = 2;
+                break;
+            }
+            break;
+
+          case 5:
+            intValues[i] = values[i].toInt();
+            osc2_waveform = (intValues[i] - 1);
+            break;
+
+          case 6:  // osc2_level
+            intValues[i] = values[i].toInt();
+            osc2_level = intValues[i];
+            break;
+
+          case 7:
+            intValues[i] = values[i].toInt();
+            switch (intValues[i]) {
+              case 1:
+                osc2_interval = 0;
+                break;
+              case 3:
+                osc2_interval = 1;
+                break;
+              case -3:
+                osc2_interval = 2;
+                break;
+              case 4:
+                osc2_interval = 3;
+                break;
+              case 5:
+                osc2_interval = 4;
+                break;
+            }
+            break;
+
+          case 8:
+            intValues[i] = values[i].toInt();
+            osc2_detune = (intValues[i] - 1);
+            break;
+
+          case 9:  // moise_level
+            intValues[i] = values[i].toInt();
+            noise = intValues[i];
+            break;
+
+          case 10:  // cutoff
+            intValues[i] = values[i].toInt();
+            vcf_cutoff = intValues[i];
+            break;
+
+          case 11:  // res
+            intValues[i] = values[i].toInt();
+            vcf_res = intValues[i];
+            ;
+            break;
+
+          case 12:  // kbdtrack
+            intValues[i] = values[i].toInt();
+            vcf_kbdtrack = intValues[i];
+            break;
+
+          case 13:  // polarity
+            intValues[i] = values[i].toInt();
+            vcf_polarity = (intValues[i] - 1);
+            break;
+
+          case 14:  // eg_intensity
+            intValues[i] = values[i].toInt();
+            vcf_eg_intensity = intValues[i];
+            break;
+
+          case 15:  // chorus
+            intValues[i] = values[i].toInt();
+            chorus = intValues[i];
+            break;
+
+          case 16:  // vcf_attack
+            intValues[i] = values[i].toInt();
+            vcf_attack = intValues[i];
+            break;
+
+          case 17:  // vcf_decay
+            intValues[i] = values[i].toInt();
+            vcf_decay = intValues[i];
+            break;
+
+          case 18:  // vcf_bp
+            intValues[i] = values[i].toInt();
+            vcf_breakpoint = intValues[i];
+            break;
+
+          case 19:  // vcf_slope
+            intValues[i] = values[i].toInt();
+            vcf_slope = intValues[i];
+            break;
+
+          case 20:  // vcf_sustain
+            intValues[i] = values[i].toInt();
+            vcf_sustain = intValues[i];
+            break;
+
+          case 21:  // vcf_release
+            intValues[i] = values[i].toInt();
+            vcf_release = intValues[i];
+            break;
+
+          case 22:  // vca_attack
+            intValues[i] = values[i].toInt();
+            vca_attack = intValues[i];
+            break;
+
+          case 23:  // vca_decay
+            intValues[i] = values[i].toInt();
+            vca_decay = intValues[i];
+            break;
+
+          case 24:  // vca_bp
+            intValues[i] = values[i].toInt();
+            vca_breakpoint = intValues[i];
+            break;
+
+          case 25:  // vca_slope
+            intValues[i] = values[i].toInt();
+            vca_slope = intValues[i];
+            break;
+
+          case 26:  // vca_sustain
+            intValues[i] = values[i].toInt();
+            vca_sustain = intValues[i];
+            break;
+
+          case 27:  // vca_release
+            intValues[i] = values[i].toInt();
+            vca_release = intValues[i];
+            break;
+
+          case 28:  // mg_freq
+            intValues[i] = values[i].toInt();
+            mg_frequency = intValues[i];
+            break;
+
+          case 29:  // mg_delay
+            intValues[i] = values[i].toInt();
+            mg_delay = intValues[i];
+            break;
+
+          case 30:  // mg_osc
+            intValues[i] = values[i].toInt();
+            mg_osc = intValues[i];
+            break;
+
+          case 31:  // mg_vcf
+            intValues[i] = values[i].toInt();
+            mg_vcf = intValues[i];
+            break;
+
+          case 32:  // bend_osc
+            intValues[i] = values[i].toInt();
+            bend_osc = intValues[i];
+            break;
+
+          case 33:  // bend_vcf
+            intValues[i] = values[i].toInt();
+            bend_vcf = intValues[i];
+            ;
+            break;
+
+          case 34:  // glide
+            intValues[i] = values[i].toInt();
+            glide_time = intValues[i];
+            break;
+
+          case 35:  // poly1
+            intValues[i] = values[i].toInt();
+            poly1 = intValues[i];
+            break;
+
+          case 36:  // poly2
+            intValues[i] = values[i].toInt();
+            poly2 = intValues[i];
+            break;
+
+          case 37:  // unison
+            intValues[i] = values[i].toInt();
+            unison = intValues[i];
+            break;
+        }
+      }
+      // Add a newline to separate rows (optional)
+      sprintf(buffer, "%d", row + 1);
+      savePatch(buffer, getCurrentPatchData());
+      updatePatchname();
+      recallPatchFlag = true;
+      sendToSynth(row);
+      recallPatchFlag = false;
+    }
+    loadPatches();
+    loadFactory = false;
+    storeLoadFactory(loadFactory);
+    state = PATCH;
+    recallPatch(1);
+  }
+}
 
 void loop() {
   checkMux();
