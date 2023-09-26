@@ -14,12 +14,12 @@
 #define CCosc2_detune 17
 #define CCnoise 18
 
-#define CCvcf_cutoff 19
-#define CCvcf_res 20
+#define CCvcf_cutoff 74
+#define CCvcf_res 71
 #define CCvcf_kbdtrack 21
 #define CCvcf_polarity 22
 #define CCvcf_eg_intensity 23
-#define CCchorus 24
+#define CCchorus 93
 
 #define CCvcf_attack 25
 #define CCvcf_decay 26
@@ -44,9 +44,7 @@
 #define CCbend_vcf 42
 #define CCglide_time 43
 
-#define CCmidi_channel 44
-#define CCmidi_enable 45
-#define CCmidi_omni 46
+#define CCwave_bank 44
 
 #define CCpoly1 47
 #define CCpoly2 48

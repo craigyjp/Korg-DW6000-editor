@@ -59,6 +59,7 @@ ADC *adc = new ADC();
 #define MUX3_bend_osc 0
 #define MUX3_bend_vcf 1
 #define MUX3_glide_time 2
+#define MUX3_wave_bank 3
 
 #define POLY1_SW 33
 #define POLY2_SW 34

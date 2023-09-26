@@ -4,14 +4,15 @@ byte midiOutCh = 1;//(EEPROM)
 
 int readresdivider = 32;
 int resolutionFrig = 5;
-boolean recallPatchFlag = true;
-boolean loadFactory = false;
+
 char buffer[10];
-char newChar = '0';
 
 int MIDIThru = midi::Thru::Off;//(EEPROM)
 String patchName = INITPATCHNAME;
-boolean encCW = true;//This is to set the encoder to increment when turned CW - Settings Option
+boolean encCW = true; //This is to set the encoder to increment when turned CW - Settings Option
+boolean recallPatchFlag = true;
+boolean loadFactory = false;
+boolean saveCurrent = false;
 
 int osc1_octave = 0;
 int osc1_waveform = 0;
@@ -22,6 +23,9 @@ int osc2_waveform = 0;
 int osc2_level = 0;
 int osc2_interval = 0;
 int osc2_detune = 0;
+
+int wave_bank = 0;
+int temp_wave_bank = 0;
 
 int noise = 0;
 

@@ -5,12 +5,14 @@ void settingsMIDIOutCh();
 void settingsEncoderDir();
 void settingsUpdateParams();
 void settingsLoadFactory();
+void settingsSaveCurrent();
 
 int currentIndexMIDICh();
 int currentIndexMIDIOutCh();
 int currentIndexEncoderDir();
 int currentIndexUpdateParams();
 int currentIndexLoadFactory();
+int currentIndexSaveCurrent();
 
 void settingsMIDICh(int index, const char *value) {
   if (strcmp(value, "ALL") == 0) {
@@ -57,6 +59,15 @@ void settingsLoadFactory(int index, const char *value) {
   storeLoadFactory(loadFactory);
 }
 
+void settingsSaveCurrent(int index, const char *value) {
+  if (strcmp(value, "Yes") == 0) {
+    saveCurrent = true;
+  } else {
+    saveCurrent =  false;
+  }
+  storeSaveCurrent(saveCurrent);
+}
+
 int currentIndexMIDICh() {
   return getMIDIChannel();
 }
@@ -77,6 +88,10 @@ int currentIndexLoadFactory() {
   return getLoadFactory();
 }
 
+int currentIndexSaveCurrent() {
+  return getSaveCurrent();
+}
+
 // add settings to the circular buffer
 void setUpSettings() {
   settings::append(settings::SettingsOption{"MIDI Ch.", {"All", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0"}, settingsMIDICh, currentIndexMIDICh});
@@ -84,4 +99,5 @@ void setUpSettings() {
   settings::append(settings::SettingsOption{"Encoder", {"Type 1", "Type 2", "\0"}, settingsEncoderDir, currentIndexEncoderDir});
   settings::append(settings::SettingsOption{"MIDI Params", {"Off", "Send Params", "\0"}, settingsUpdateParams, currentIndexUpdateParams});
   settings::append(settings::SettingsOption{"Load factory", {"No", "Yes", "\0"}, settingsLoadFactory, currentIndexLoadFactory});
+  settings::append(settings::SettingsOption{"Save Current", {"No", "Yes", "\0"}, settingsSaveCurrent, currentIndexSaveCurrent});
 }

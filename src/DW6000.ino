@@ -70,6 +70,7 @@ long earliestTime = millis();  //For voice allocation - initialise to now
 
 byte byteArray[8];
 byte writeRequest[7];
+byte saveRequest[6];
 
 void setup() {
   SPI.begin();
@@ -93,6 +94,13 @@ void setup() {
   writeRequest[4] = 0x11;  // Write request
   writeRequest[5] = 0x00;
   writeRequest[6] = 0xF7;  // End of Exclusive
+
+  saveRequest[0] = 0xF0;  // Start of SysEx
+  saveRequest[1] = 0x42;  // Manufacturer ID (example value)
+  saveRequest[2] = 0x30;  // Format ID 42H
+  saveRequest[3] = 0x04;  // DW6000 ID
+  saveRequest[4] = 0x10;  // Write request
+  saveRequest[5] = 0xF7;  // End of Exclusive
 
   cardStatus = SD.begin(BUILTIN_SDCARD);
   if (cardStatus) {
@@ -134,6 +142,7 @@ void setup() {
 
   //Read Encoder Direction from EEPROM
   encCW = getEncoderDir();
+
   //Read MIDI Out Channel from EEPROM
   midiOutCh = getMIDIOutCh();
 
@@ -203,37 +212,293 @@ void updateosc1_octave() {
 
 void updateosc1_waveform() {
   if (!recallPatchFlag) {
-    switch (osc1_waveform) {
+    switch (wave_bank) {
       case 0:
-        showCurrentParameterPage("Osc1 Wave", String("Brass/Strings"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("Brass/Strings"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("Violin"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("A Piano"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("E Piano"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("Synth Bass"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("Saxaphone"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("Clavi"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("Bell & Gong"));
+            break;
+        }
         break;
 
       case 1:
-        showCurrentParameterPage("Osc1 Wave", String("Violin"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 1"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 2"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 3"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 4"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 5"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 6"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 7"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 8"));
+            break;
+        }
         break;
 
       case 2:
-        showCurrentParameterPage("Osc1 Wave", String("A Piano"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 9"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 10"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 11"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 12"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 13"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 14"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 15"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("Analogue 16"));
+            break;
+        }
         break;
 
       case 3:
-        showCurrentParameterPage("Osc1 Wave", String("E Piano"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("D Sawtooth"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("D Square"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("D Triangle"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("Sine"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("D Pulse Med"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("D Pulse Nar"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("D Triangle"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("Square"));
+            break;
+        }
         break;
 
       case 4:
-        showCurrentParameterPage("Osc1 Wave", String("Synth Bass"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 1"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 2"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 3"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 4"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 5"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 6"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 7"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("ESQ1 8"));
+            break;
+        }
         break;
 
       case 5:
-        showCurrentParameterPage("Osc1 Wave", String("Saxaphone"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 1"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 2"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 3"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 4"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 5"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 6"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 7"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("SQ80 8"));
+            break;
+        }
         break;
 
       case 6:
-        showCurrentParameterPage("Osc1 Wave", String("Clavi"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Sax"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Violin"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 A Guitar"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 D Guitar"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 E Bass"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 D Bass"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Bell"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Org/Whis"));
+            break;
+        }
         break;
 
       case 7:
-        showCurrentParameterPage("Osc1 Wave", String("Bell & Gong"));
+        switch (osc1_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 A Synth"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Clarinet"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 A Piano"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 EPiano"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 EPianoH"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Clavi"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Organ"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc1 Wave", String("DW8 Brass"));
+            break;
+        }
         break;
     }
   }
@@ -249,6 +514,7 @@ void updateosc1_level() {
     }
   }
   midiCCOut(CCosc1_level, 2, osc1_level);
+  midiCCOut(CCglide_time, 1, glide_time);
 }
 
 void updateosc2_octave() {
@@ -270,37 +536,293 @@ void updateosc2_octave() {
 
 void updateosc2_waveform() {
   if (!recallPatchFlag) {
-    switch (osc2_waveform) {
+    switch (wave_bank) {
       case 0:
-        showCurrentParameterPage("Osc2 Wave", String("Brass/Strings"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("Brass/Strings"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("Violin"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("A Piano"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("E Piano"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("Synth Bass"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("Saxaphone"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("Clavi"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("Bell & Gong"));
+            break;
+        }
         break;
 
       case 1:
-        showCurrentParameterPage("Osc2 Wave", String("Violin"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 1"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 2"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 3"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 4"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 5"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 6"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 7"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 8"));
+            break;
+        }
         break;
 
       case 2:
-        showCurrentParameterPage("Osc2 Wave", String("A Piano"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 9"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 10"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 11"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 12"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 13"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 14"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 15"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("Analogue 16"));
+            break;
+        }
         break;
 
       case 3:
-        showCurrentParameterPage("Osc2 Wave", String("E Piano"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("D Sawtooth"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("D Square"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("D Triangle"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("Sine"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("D Pulse Med"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("D Pulse Nar"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("D Triangle"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("Square"));
+            break;
+        }
         break;
 
       case 4:
-        showCurrentParameterPage("Osc2 Wave", String("Synth Bass"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 1"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 2"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 3"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 4"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 5"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 6"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 7"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("ESQ1 8"));
+            break;
+        }
         break;
 
       case 5:
-        showCurrentParameterPage("Osc2 Wave", String("Saxaphone"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 1"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 2"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 3"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 4"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 5"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 6"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 7"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("SQ80 8"));
+            break;
+        }
         break;
 
       case 6:
-        showCurrentParameterPage("Osc2 Wave", String("Clavi"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Sax"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Violin"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 A Guitar"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 D Guitar"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 E Bass"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 D Bass"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Bell"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Org/Whis"));
+            break;
+        }
         break;
 
       case 7:
-        showCurrentParameterPage("Osc2 Wave", String("Bell & Gong"));
+        switch (osc2_waveform) {
+          case 0:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 A Synth"));
+            break;
+
+          case 1:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Clarinet"));
+            break;
+
+          case 2:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 A Piano"));
+            break;
+
+          case 3:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 EPiano"));
+            break;
+
+          case 4:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 EPianoH"));
+            break;
+
+          case 5:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Clavi"));
+            break;
+
+          case 6:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Organ"));
+            break;
+
+          case 7:
+            showCurrentParameterPage("Osc2 Wave", String("DW8 Brass"));
+            break;
+        }
         break;
     }
   }
@@ -583,6 +1105,47 @@ void updateglide_time() {
     }
   }
   midiCCOut(CCglide_time, 1, glide_time);
+  midiCCOut(CCosc1_level, 1, osc1_level);
+}
+
+void updatewaveBank() {
+  if (!recallPatchFlag) {
+    switch (wave_bank) {
+      case 0:
+        showCurrentParameterPage("Wave Bank 1", String("DW6000 Orig"));
+        break;
+
+      case 1:
+        showCurrentParameterPage("Wave Bank 2", String("Bernd Bruing 1"));
+        break;
+
+      case 2:
+        showCurrentParameterPage("Wave Bank 3", String("Bernd Bruing 2"));
+        break;
+
+      case 3:
+        showCurrentParameterPage("Wave Bank 4", String("D Waves"));
+        break;
+
+      case 4:
+        showCurrentParameterPage("Wave Bank 5", String("ESQ1 Waves"));
+        break;
+
+      case 5:
+        showCurrentParameterPage("Wave Bank 6", String("SQ80 Waves"));
+        break;
+
+      case 6:
+        showCurrentParameterPage("Wave Bank 7", String("DW8000 Orig1"));
+        break;
+
+      case 7:
+        showCurrentParameterPage("Wave Bank 8", String("DW8000 Orig2"));
+        break;
+    }
+  }
+  midiCCOut(CCwave_bank, 1, wave_bank);
+  midiCCOut(CCwave_bank, 2, wave_bank);
 }
 
 void updatePoly1() {
@@ -844,6 +1407,12 @@ void myControlChange(byte channel, byte control, int value) {
       updateglide_time();
       break;
 
+    case CCwave_bank:
+      wave_bank = value;
+      wave_bank = map(wave_bank, 0, 127, 0, 7);
+      updatewaveBank();
+      break;
+
     case CCpoly1:
       //value > 0 ? poly1 = 1 : poly1 = 0;
       updatePoly1();
@@ -931,6 +1500,7 @@ void setCurrentPatchData(String data[]) {
   poly1 = data[35].toInt();
   poly2 = data[36].toInt();
   unison = data[37].toInt();
+  wave_bank = data[38].toInt();
 
   updatePoly1();
   updatePoly2();
@@ -982,6 +1552,7 @@ void sendToSynth(int row) {
   updatePoly1();
   updatePoly2();
   updateUnison();
+  updatewaveBank();
 
   delay(2);
   writeRequest[5] = row;
@@ -996,7 +1567,7 @@ String getCurrentPatchData() {
          + "," + String(vca_attack) + "," + String(vca_decay) + "," + String(vca_breakpoint) + "," + String(vca_slope) + "," + String(vca_sustain) + "," + String(vca_release)
          + "," + String(mg_frequency) + "," + String(mg_delay) + "," + String(mg_osc) + "," + String(mg_vcf)
          + "," + String(bend_osc) + "," + String(bend_vcf) + "," + String(glide_time)
-         + "," + String(poly1) + "," + String(poly2) + "," + String(unison);
+         + "," + String(poly1) + "," + String(poly2) + "," + String(unison) + "," + String(wave_bank);
 }
 
 void checkMux() {
@@ -1131,6 +1702,9 @@ void checkMux() {
       case MUX3_glide_time:
         myControlChange(midiChannel, CCglide_time, mux3Read);
         break;
+      case MUX3_wave_bank:
+        myControlChange(midiChannel, CCwave_bank, mux3Read);
+        break;
     }
   }
 
@@ -1154,6 +1728,23 @@ void midiCCOut(byte cc, int param_offset, byte value) {
   switch (param_offset) {
     case 0:
       value = (polymode << 4) | (bend_osc & 0x0F);
+      break;
+
+    case 1:
+      if (wave_bank > 3) {
+        temp_wave_bank = wave_bank - 4;
+      } else {
+        temp_wave_bank = wave_bank;
+      }
+      value = (temp_wave_bank << 5) | (glide_time & 0x1F);
+      break;
+
+    case 2:
+      if (wave_bank > 3) {
+        value = (1 << 6) | (osc1_level & 0x1F);
+      } else {
+        value = (osc1_level & 0x1F);
+      }
       break;
 
     case 18:
@@ -1485,14 +2076,29 @@ void checkEncoder() {
   }
 }
 
-void checkLoadFactory() {
-  loadFactory = getLoadFactory();
-  if (loadFactory) {
+void SaveCurrent() {
+  if (saveCurrent) {
+    state = SETTINGS;
+    if (midiOutCh > 0) {
+      MIDI.sendSysEx(sizeof(saveRequest), saveRequest);
+    }
+    saveCurrent = false;
+    storeSaveCurrent(saveCurrent);
+    settings::decrement_setting_value();
+    settings::save_current_value();
+    showSettingsPage();
+    delay(100);
+    state = PARAMETER;
+    //recallPatch(patchNo);
+  }
+}
 
+void checkLoadFactory() {
+  if (loadFactory) {
     for (int row = 0; row < 64; row++) {
       String currentRow = factory[row];
 
-      String values[38];   // Assuming you have 38 values per row
+      String values[39];   // Assuming you have 38 values per row
       int valueIndex = 0;  // Index for storing values
       for (int i = 0; i < currentRow.length(); i++) {
         char currentChar = currentRow.charAt(i);
@@ -1508,8 +2114,8 @@ void checkLoadFactory() {
       }
 
       // Process the values
-      int intValues[38];
-      for (int i = 0; i < 38; i++) {  // Adjust the loop count based on the number of values per row
+      int intValues[39];
+      for (int i = 0; i < 39; i++) {  // Adjust the loop count based on the number of values per row
         switch (i) {
 
           case 0:
@@ -1738,6 +2344,11 @@ void checkLoadFactory() {
             intValues[i] = values[i].toInt();
             unison = intValues[i];
             break;
+
+          case 38:  // wave_bank
+            intValues[i] = values[i].toInt();
+            wave_bank = intValues[i];
+            break;
         }
       }
       // Add a newline to separate rows (optional)
@@ -1751,16 +2362,21 @@ void checkLoadFactory() {
     loadPatches();
     loadFactory = false;
     storeLoadFactory(loadFactory);
-    state = PATCH;
+    settings::decrement_setting_value();
+    settings::save_current_value();
+    showSettingsPage();
+    delay(100);
+    state = PARAMETER;
     recallPatch(1);
   }
 }
 
-void loop() {
-  checkMux();
-  checkSwitches();
-  checkEncoder();
-  MIDI.read(midiChannel);
-  usbMIDI.read(midiChannel);
-  checkLoadFactory();
-}
+  void loop() {
+    checkMux();
+    checkSwitches();
+    checkEncoder();
+    MIDI.read(midiChannel);
+    usbMIDI.read(midiChannel);
+    checkLoadFactory();
+    SaveCurrent();
+  }
