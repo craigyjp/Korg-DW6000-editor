@@ -11,13 +11,14 @@ Upgraded the DW6000 with the 128 waveform mod in banks of 8.
 
 The editor board was a sandwich of proto board to get the spacing almost right to fit the pots where the numbers were for each parameter, everything is mounted on a single board and intercepts the incoming MIDI and adds usbMIDI support. Plus each parameter is now mapped to an incoming CC message for easier editing from a DAW etc.
 
-* 999 Memories
-* USB to MIDI
-* CC message control
+* 999 Memories.
+* USB to MIDI conversion.
+* CC message control.
 * Master control sends all params for each patch from memory to the DW.
 * slave mode, edits the DWs own patches.
-* Reload of factory patches from the settings memu
+* Reload of factory patches from the settings menu.
 * Dump of current patch as a sysex file.
-* 128 waveform mod support with Param 14 (currently now working from pot, but param is stored)
+* Dump all patches over MIDI as sysex files (64).
+* 128 waveform mod support with Param 14 (currently now working from pot, but param is stored).
 
   
