@@ -19,6 +19,6 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Reload of factory patches from the settings menu.
 * Dump of current patch as a sysex file.
 * Dump all patches over MIDI as sysex files (64).
-* 128 waveform mod support with Param 14 (currently now working from pot, but param is stored).
+* 128 waveform mod support with Param 14 (currently not working from pot, but param is stored).
 
   
