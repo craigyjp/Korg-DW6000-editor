@@ -33,9 +33,7 @@ ADC *adc = new ADC();
 #define MUX1_vcf_cutoff 9
 #define MUX1_vcf_res 10
 #define MUX1_vcf_kbdtrack 11
-#define MUX1_vcf_polarity 12
 #define MUX1_vcf_eg_intensity 13
-#define MUX1_chorus 14
 
 //Mux 2 Connections
 #define MUX2_vcf_attack 0
@@ -57,18 +55,26 @@ ADC *adc = new ADC();
 
 //Mux 3 Connections
 #define MUX3_bend_osc 0
-#define MUX3_bend_vcf 1
 #define MUX3_glide_time 2
 #define MUX3_wave_bank 3
 
 #define POLY1_SW 33
 #define POLY2_SW 34
 #define UNISON_SW 35
+#define CHORUS_SW 40
+#define BEND_VCF_SW 18
+#define KBDTRACK_SW 19
+#define POLARITY_SW 7
 
 #define POLY1_LED 36
 #define POLY2_LED 37
 #define UNISON_LED 38
 #define SAVE_LED 39
+#define CHORUS_LED 28
+#define BEND_VCF_LED 21
+#define KBDTRACK_RED_LED 22
+#define KBDTRACK_GREEN_LED 20
+#define VCF_POLARITY_LED 8
 
 //Teensy 4.1 Pins
 
@@ -107,6 +113,11 @@ TButton recallButton{ RECALL_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };
 TButton poly1Button{ POLY1_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };
 TButton poly2Button{ POLY2_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };
 TButton unisonButton{ UNISON_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };  //On encoder
+
+TButton chorusButton{ CHORUS_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };
+TButton bendvcfButton{ BEND_VCF_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };
+TButton kbdtrackButton{ KBDTRACK_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };  //On encoder
+TButton polarityButton{ POLARITY_SW, LOW, HOLD_DURATION, DEBOUNCE, CLICK_DURATION };  //On encoder
 
 Encoder encoder(ENCODER_PINB, ENCODER_PINA);  //This often needs the pins swapping depending on the encoder
 
@@ -151,8 +162,19 @@ void setupHardware() {
   pinMode(POLY2_SW, INPUT_PULLUP);
   pinMode(UNISON_SW, INPUT_PULLUP);
 
+  pinMode(CHORUS_SW, INPUT_PULLUP);
+  pinMode(BEND_VCF_SW, INPUT_PULLUP);
+  pinMode(KBDTRACK_SW, INPUT_PULLUP);
+  pinMode(POLARITY_SW, INPUT_PULLUP);
+
   pinMode(POLY1_LED, OUTPUT);
   pinMode(POLY2_LED, OUTPUT);
   pinMode(UNISON_LED, OUTPUT);
   pinMode(SAVE_LED, OUTPUT);
+
+  pinMode(CHORUS_LED, OUTPUT);
+  pinMode(BEND_VCF_LED, OUTPUT);
+  pinMode(KBDTRACK_RED_LED, OUTPUT);
+  pinMode(KBDTRACK_GREEN_LED, OUTPUT);
+  pinMode(VCF_POLARITY_LED, OUTPUT);
 }

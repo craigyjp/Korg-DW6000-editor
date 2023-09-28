@@ -1,5 +1,5 @@
 /*
-  DW6000 Editor - Firmware Rev 1.0
+  DW6000 Editor - Firmware Rev 1.1
 
   Includes code by:
     Dave Benn - Handling MUXs, a few other bits and original inspiration  https://www.notesandvolts.com/2019/01/teensy-synth-part-10-hardware.html
@@ -909,6 +909,20 @@ void updatevcf_kbdtrack() {
         break;
     }
   }
+  switch (vcf_kbdtrack) {
+    case 0:
+      digitalWrite(KBDTRACK_GREEN_LED, LOW);
+      digitalWrite(KBDTRACK_RED_LED, LOW);
+      break;
+    case 1:
+      digitalWrite(KBDTRACK_GREEN_LED, HIGH);
+      digitalWrite(KBDTRACK_RED_LED, LOW);
+      break;
+    case 2:
+      digitalWrite(KBDTRACK_GREEN_LED, LOW);
+      digitalWrite(KBDTRACK_RED_LED, HIGH);
+      break;
+  }
   midiCCOut(CCvcf_kbdtrack, 21, vcf_kbdtrack);
 }
 
@@ -922,6 +936,14 @@ void updatevcf_polarity() {
         showCurrentParameterPage("EG Polarity", String("Negative"));
         break;
     }
+  }
+  switch (vcf_polarity) {
+    case 0:
+      digitalWrite(VCF_POLARITY_LED, LOW);
+      break;
+    case 1:
+      digitalWrite(VCF_POLARITY_LED, HIGH);
+      break;
   }
   midiCCOut(CCvcf_polarity, 22, vcf_polarity);
 }
@@ -947,6 +969,14 @@ void updatechorus() {
         showCurrentParameterPage("Chorus", String("On"));
         break;
     }
+  }
+  switch (chorus) {
+    case 0:
+      digitalWrite(CHORUS_LED, LOW);
+      break;
+    case 1:
+      digitalWrite(CHORUS_LED, HIGH);
+      break;
   }
   midiCCOut(CCchorus, 23, chorus);
 }
@@ -1092,6 +1122,14 @@ void updatebend_vcf() {
         showCurrentParameterPage("Bend to VCF", String("On"));
         break;
     }
+  }
+  switch (bend_vcf) {
+    case 0:
+      digitalWrite(BEND_VCF_LED, LOW);
+      break;
+    case 1:
+      digitalWrite(BEND_VCF_LED, HIGH);
+      break;
   }
   midiCCOut(CCbend_vcf, 18, bend_vcf);
 }
@@ -1269,28 +1307,10 @@ void myControlChange(byte channel, byte control, int value) {
       updatevcf_res();
       break;
 
-    case CCvcf_kbdtrack:
-      vcf_kbdtrack = value;
-      vcf_kbdtrack = map(vcf_kbdtrack, 0, 127, 0, 2);
-      updatevcf_kbdtrack();
-      break;
-
-    case CCvcf_polarity:
-      vcf_polarity = value;
-      vcf_polarity = map(vcf_polarity, 0, 127, 0, 1);
-      updatevcf_polarity();
-      break;
-
     case CCvcf_eg_intensity:
       vcf_eg_intensity = value;
       vcf_eg_intensity = map(vcf_eg_intensity, 0, 127, 0, 31);
       updatevcf_eg_intensity();
-      break;
-
-    case CCchorus:
-      chorus = value;
-      chorus = map(chorus, 0, 127, 0, 1);
-      updatechorus();
       break;
 
     case CCvcf_attack:
@@ -1395,12 +1415,6 @@ void myControlChange(byte channel, byte control, int value) {
       updatebend_osc();
       break;
 
-    case CCbend_vcf:
-      bend_vcf = value;
-      bend_vcf = map(bend_vcf, 0, 127, 0, 1);
-      updatebend_vcf();
-      break;
-
     case CCglide_time:
       glide_time = value;
       glide_time = map(glide_time, 0, 127, 0, 31);
@@ -1411,6 +1425,27 @@ void myControlChange(byte channel, byte control, int value) {
       wave_bank = value;
       wave_bank = map(wave_bank, 0, 127, 0, 7);
       updatewaveBank();
+      break;
+
+    case CCchorus:
+      value > 0 ? chorus = 1 : chorus = 0;
+      updatechorus();
+      break;
+
+    case CCvcf_polarity:
+      value > 0 ? vcf_polarity = 1 : vcf_polarity = 0;
+      updatevcf_polarity();
+      break;
+
+    case CCbend_vcf:
+      value > 0 ? bend_vcf = 1 : bend_vcf = 0;
+      updatebend_vcf();
+      break;
+
+    case CCvcf_kbdtrack:
+      vcf_kbdtrack = value;
+      //value > 0 ? vcf_kbdtrack = 2 : vcf_kbdtrack = 1 : vcf_kbdtrack = 0;    
+      updatevcf_kbdtrack();
       break;
 
     case CCpoly1:
@@ -1505,6 +1540,10 @@ void setCurrentPatchData(String data[]) {
   updatePoly1();
   updatePoly2();
   updateUnison();
+  updatechorus();
+  updatevcf_kbdtrack();
+  updatevcf_polarity();
+  updatebend_vcf();
 
   //Patchname
   updatePatchname();
@@ -1612,17 +1651,8 @@ void checkMux() {
       case MUX1_vcf_res:
         myControlChange(midiChannel, CCvcf_res, mux1Read);
         break;
-      case MUX1_vcf_kbdtrack:
-        myControlChange(midiChannel, CCvcf_kbdtrack, mux1Read);
-        break;
-      case MUX1_vcf_polarity:
-        myControlChange(midiChannel, CCvcf_polarity, mux1Read);
-        break;
       case MUX1_vcf_eg_intensity:
         myControlChange(midiChannel, CCvcf_eg_intensity, mux1Read);
-        break;
-      case MUX1_chorus:
-        myControlChange(midiChannel, CCchorus, mux1Read);
         break;
     }
   }
@@ -1695,9 +1725,6 @@ void checkMux() {
     switch (muxInput) {
       case MUX3_bend_osc:
         myControlChange(midiChannel, CCbend_osc, mux3Read);
-        break;
-      case MUX3_bend_vcf:
-        myControlChange(midiChannel, CCbend_vcf, mux3Read);
         break;
       case MUX3_glide_time:
         myControlChange(midiChannel, CCglide_time, mux3Read);
@@ -1824,6 +1851,33 @@ void checkSwitches() {
     myControlChange(midiChannel, CCunison, unison);
   }
 
+  chorusButton.update();
+  if (chorusButton.numClicks() == 1) {
+    chorus = !chorus;
+    myControlChange(midiChannel, CCchorus, chorus);
+  }
+
+  bendvcfButton.update();
+  if (bendvcfButton.numClicks() == 1) {
+    bend_vcf = !bend_vcf;
+    myControlChange(midiChannel, CCbend_vcf, bend_vcf);
+  }
+
+  kbdtrackButton.update();
+  if (kbdtrackButton.numClicks() == 1) {
+    vcf_kbdtrack = (vcf_kbdtrack + 1);
+    if (vcf_kbdtrack > 2) {
+      vcf_kbdtrack = 0;
+    }
+    myControlChange(midiChannel, CCvcf_kbdtrack, vcf_kbdtrack);
+  }
+
+  polarityButton.update();
+  if (polarityButton.numClicks() == 1) {
+    vcf_polarity = !vcf_polarity;
+    myControlChange(midiChannel, CCvcf_polarity, vcf_polarity);
+  }
+
   saveButton.update();
   if (saveButton.held()) {
     switch (state) {
@@ -1833,6 +1887,7 @@ void checkSwitches() {
         break;
     }
   } else if (saveButton.numClicks() == 1) {
+    digitalWrite(SAVE_LED, HIGH);
     switch (state) {
       case PARAMETER:
         if (patches.size() < PATCHES_LIMIT) {
@@ -1851,6 +1906,7 @@ void checkSwitches() {
         loadPatches();  //Get rid of pushed patch if it wasn't saved
         setPatchesOrdering(patchNo);
         renamedPatch = "";
+        digitalWrite(SAVE_LED, LOW);
         state = PARAMETER;
         break;
       case PATCHNAMING:
@@ -1862,6 +1918,7 @@ void checkSwitches() {
         loadPatches();  //Get rid of pushed patch if it wasn't saved
         setPatchesOrdering(patchNo);
         renamedPatch = "";
+        digitalWrite(SAVE_LED, LOW);
         state = PARAMETER;
         break;
     }
@@ -1899,6 +1956,7 @@ void checkSwitches() {
         state = PARAMETER;
         break;
       case SAVE:
+        digitalWrite(SAVE_LED, LOW);
         renamedPatch = "";
         state = PARAMETER;
         loadPatches();  //Remove patch that was to be saved
@@ -2090,6 +2148,28 @@ void SaveCurrent() {
     delay(100);
     state = PARAMETER;
     //recallPatch(patchNo);
+  }
+}
+
+void SaveAll() {
+  if (saveAll) {
+    state = SETTINGS;
+    for (int row = 0; row < 64; row++) {
+      if (midiOutCh > 0) {
+        MIDI.sendProgramChange(row, midiOutCh);
+        delay(10);
+        MIDI.sendSysEx(sizeof(saveRequest), saveRequest);
+        delay(10);
+      }
+    }
+    saveAll = false;
+    storeSaveAll(saveAll);
+    settings::decrement_setting_value();
+    settings::save_current_value();
+    showSettingsPage();
+    delay(100);
+    state = PARAMETER;
+    recallPatch(patchNo);
   }
 }
 
@@ -2371,12 +2451,13 @@ void checkLoadFactory() {
   }
 }
 
-  void loop() {
-    checkMux();
-    checkSwitches();
-    checkEncoder();
-    MIDI.read(midiChannel);
-    usbMIDI.read(midiChannel);
-    checkLoadFactory();
-    SaveCurrent();
-  }
+void loop() {
+  checkMux();
+  checkSwitches();
+  checkEncoder();
+  MIDI.read(midiChannel);
+  usbMIDI.read(midiChannel);
+  checkLoadFactory();
+  SaveCurrent();
+  SaveAll();
+}

@@ -13,6 +13,7 @@ boolean encCW = true; //This is to set the encoder to increment when turned CW -
 boolean recallPatchFlag = true;
 boolean loadFactory = false;
 boolean saveCurrent = false;
+boolean saveAll = false;
 
 int osc1_octave = 0;
 int osc1_waveform = 0;
