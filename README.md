@@ -7,7 +7,7 @@ Back in the 80's I wrote an editor for the DW on my Amstrad CPC 6128, well compu
 
 So I thought it would be good to build a hardware editor directly into the synth for each parameter and store them in memory. Also add an OLED display to show what is being edited.
 
-Upgraded the DW6000 with the 128 waveform mod in banks of 8.
+Upgraded the DW6000 with the 128 waveform mod in banks of 8. Unfortunately the parameter 14 currently doesnt change over MIDI, developers say it was never really tested and it was done a while back. I'm in no position to fix it, so it sort of negates the 128 waveform expansion from the editor. Yo ucan still edit from the synth and maybe a fix will come along, who knows.
 
 The editor board was a sandwich of proto board to get the spacing almost right to fit the pots where the numbers were for each parameter, everything is mounted on a single board and intercepts the incoming MIDI and adds usbMIDI support. Plus each parameter is now mapped to an incoming CC message for easier editing from a DAW etc.
 
@@ -20,5 +20,8 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Dump of current patch as a sysex file.
 * Dump all patches over MIDI as sysex files (64).
 * 128 waveform mod support with Param 14 (currently not working from pot, but param is stored).
+
+  * Still to do, fix slave/master mode.
+  * Accept sysex patches over MIDI would be good.
 
   
