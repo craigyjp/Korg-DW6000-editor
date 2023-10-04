@@ -21,7 +21,7 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Dump all patches over MIDI as sysex files (64).
 * 128 waveform mod support with Param 14 (currently not working from pot, but param is stored).
 
-  * Still to do, fix slave/master mode.
-  * Accept sysex patches over MIDI would be good.
+* Still to do, fix slave/master mode.
+* Accept sysex patches over MIDI would be good.
 
   
