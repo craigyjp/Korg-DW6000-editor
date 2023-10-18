@@ -1,5 +1,5 @@
 /*
-  DW6000 Editor - Firmware Rev 1.1
+  DW6000 Editor - Firmware Rev 1.2
 
   Includes code by:
     Dave Benn - Handling MUXs, a few other bits and original inspiration  https://www.notesandvolts.com/2019/01/teensy-synth-part-10-hardware.html
@@ -71,6 +71,8 @@ long earliestTime = millis();  //For voice allocation - initialise to now
 byte byteArray[8];
 byte writeRequest[7];
 byte saveRequest[6];
+byte sysexBuff(32);
+byte data(32);
 
 void setup() {
   SPI.begin();
@@ -130,6 +132,7 @@ void setup() {
   usbMIDI.setHandleProgramChange(myProgramChange);
   usbMIDI.setHandleNoteOff(myNoteOff);
   usbMIDI.setHandleNoteOn(myNoteOn);
+  usbMIDI.setHandleSystemExclusive(mySystemExclusiveChunk);
   Serial.println("USB Client MIDI Listening");
 
   //MIDI 5 Pin DIN
@@ -138,6 +141,7 @@ void setup() {
   MIDI.setHandleProgramChange(myProgramChange);
   MIDI.setHandleNoteOn(myNoteOn);
   MIDI.setHandleNoteOff(myNoteOff);
+  MIDI.setHandleSystemExclusive(mySystemExclusiveChunk);
   Serial.println("MIDI In DIN Listening");
 
   //Read Encoder Direction from EEPROM
@@ -157,8 +161,193 @@ void myNoteOff(byte channel, byte note, byte velocity) {
   MIDI.sendNoteOff(note, velocity, channel);
 }
 
+void mySystemExclusiveChunk(byte *data, unsigned int length) {
+  recallPatchFlag = true;
+
+  for (unsigned int n = 5; n < 31; n++) {
+
+    switch (n) {
+      case 5:  // Parameter 0 - Bend Osc - Assign Mode
+        bend_osc = data[n] & 0x0F;
+        updatebend_osc();
+        polymode = (data[n] >> 4) & 0x03;
+        switch (polymode) {
+          case 0:
+            poly1 = 1;
+            updatePoly1();
+            break;
+
+          case 1:
+            poly2 = 1;
+            updatePoly2();
+            break;
+
+          case 2:
+            unison = 1;
+            updateUnison();
+            break;
+        }
+        break;
+
+      case 6:  // Parameter 1 - Portamento Time
+        glide_time = data[n];
+        updateglide_time();
+        break;
+
+      case 7:  // Parameter 2 - OSC1 Level
+        osc1_level = data[n];
+        updateosc1_level();
+        break;
+
+      case 8:  // Parameter 3 - OSC2 Level
+        osc2_level = data[n];
+        updateosc2_level();
+        break;
+
+      case 9:  // Parameter 4 - Noise Level
+        noise = data[n];
+        updatenoise();
+        break;
+
+      case 10:  // Parameter 5 - Cutoff
+        vcf_cutoff = data[n];
+        updatevcf_cutoff();
+        break;
+
+      case 11:  // Parameter 6 - Resonance
+        vcf_res = data[n];
+        updatevcf_res();
+        break;
+
+      case 12:  // Parameter 7 - EG Intensity
+        vcf_eg_intensity = data[n];
+        updatevcf_eg_intensity();
+        break;
+
+      case 13:  // Parameter 8 - VCF Attack
+        vcf_attack = data[n];
+        updatevcf_attack();
+        break;
+
+      case 14:  // Parameter 9 - VCF Decay
+        vcf_decay = data[n];
+        updatevcf_decay();
+        break;
+
+      case 15:  // Parameter 10 - VCF Break Point
+        vcf_breakpoint = data[n];
+        updatevcf_breakpoint();
+        break;
+
+      case 16:  // Parameter 11 - VCF Slope
+        vcf_slope = data[n];
+        updatevcf_slope();
+        break;
+
+      case 17:  // Parameter 12 - VCF Sustain
+        vcf_sustain = data[n];
+        updatevcf_sustain();
+        break;
+
+      case 18:  // Parameter 13 - VCF Release
+        vcf_release = data[n];
+        updatevcf_release();
+        break;
+
+      case 19:  // Parameter 14 - VCA Attack
+        vca_attack = data[n];
+        updatevca_attack();
+        break;
+
+      case 20:  // Parameter 15 - VCA Decay
+        vca_decay = data[n];
+        updatevca_decay();
+        break;
+
+      case 21:  // Parameter 16 - VCA Break Point
+        vca_breakpoint = data[n];
+        updatevca_breakpoint();
+        break;
+
+      case 22:  // Parameter 17 - VCA Slope
+        vca_slope = data[n];
+        updatevca_slope();
+        break;
+
+      case 23:  // Parameter 18 - VCA Sustain - Bend VCF
+        vca_sustain = data[n] & 0x0F;
+        updatevca_sustain();
+        bend_vcf = (data[n] >> 4) & 0x01;
+        updatebend_vcf();
+        break;
+
+      case 24:  // Parameter 19 - VCA Release - OSC 1 OCT
+        vca_release = data[n] & 0x0F;
+        updatevca_release();
+        osc1_octave = (data[n] >> 4) & 0x03;
+        updateosc1_octave();
+        break;
+
+      case 25:  // Parameter 20 - MG Freq - OSC 2 OCT
+        mg_frequency = data[n] & 0x0F;
+        updatemg_frequency();
+        osc2_octave = (data[n] >> 4) & 0x03;
+        updateosc2_octave();
+        break;
+
+      case 26:  // Parameter 21 - MG Delay - KBD TRACK
+        mg_delay = data[n] & 0x0F;
+        updatemg_delay();
+        vcf_kbdtrack = (data[n] >> 4) & 0x03;
+        updatevcf_kbdtrack();
+        break;
+
+      case 27:  // Parameter 22 - MG OSC - VCF Polarity
+        mg_osc = data[n] & 0x0F;
+        updatemg_osc();
+        vcf_polarity = (data[n] >> 4) & 0x01;
+        updatevcf_polarity();
+        break;
+
+      case 28:  // Parameter 23 - MG VCF - Chorus
+        mg_vcf = data[n] & 0x0F;
+        updatemg_vcf();
+        chorus = (data[n] >> 4) & 0x01;
+        updatechorus();
+        break;
+
+      case 29:  // Parameter 24 - OSC 2 Wave - OSC 1 Wave
+        osc2_waveform = data[n] & 0x07;
+        updateosc2_waveform();
+        osc1_waveform = (data[n] >> 3) & 0x07;
+        updateosc1_waveform();
+        break;
+
+      case 30:  // Parameter 25 - OSC 2 Detune - OSC 2 Interval
+        osc2_detune = data[n] & 0x07;
+        updateosc2_detune();
+        osc2_interval = (data[n] >> 3) & 0x07;
+        updateosc2_interval();
+        break;
+    }
+  }
+
+  wave_bank = 0;
+  updatewaveBank();
+  recallPatchFlag = false;
+
+  patchName = "Sysex Patch";
+  updatePatchname();
+  
+}
+
 void myConvertControlChange(byte channel, byte number, byte value) {
   switch (number) {
+
+    case 0:
+      bankselect = value;
+      break;
+
     case 1:
       MIDI.sendControlChange(number, value, channel);
       break;
@@ -1444,22 +1633,18 @@ void myControlChange(byte channel, byte control, int value) {
 
     case CCvcf_kbdtrack:
       vcf_kbdtrack = value;
-      //value > 0 ? vcf_kbdtrack = 2 : vcf_kbdtrack = 1 : vcf_kbdtrack = 0;    
       updatevcf_kbdtrack();
       break;
 
     case CCpoly1:
-      //value > 0 ? poly1 = 1 : poly1 = 0;
       updatePoly1();
       break;
 
     case CCpoly2:
-      //value > 0 ? poly2 = 1 : poly2 = 0;
       updatePoly2();
       break;
 
     case CCunison:
-      //value > 0 ? unison = 1 : unison = 0;
       updateUnison();
       break;
 
@@ -2180,7 +2365,7 @@ void checkLoadFactory() {
 
       String values[39];   // Assuming you have 38 values per row
       int valueIndex = 0;  // Index for storing values
-      for (int i = 0; i < currentRow.length(); i++) {
+      for (unsigned int i = 0; i < currentRow.length(); i++) {
         char currentChar = currentRow.charAt(i);
 
         // Check for the delimiter (",") and move to the next value

@@ -92,7 +92,7 @@ int currentIndexEncoderDir() {
 }
 
 int currentIndexUpdateParams() {
-  return getUpdateParams() ? 0 : 1;
+  return getUpdateParams() ? 1 : 0;
 }
 
 int currentIndexLoadFactory() {

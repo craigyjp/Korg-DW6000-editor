@@ -27,6 +27,8 @@
 
 ST7735_t3 tft = ST7735_t3(cs, dc, 26, 27, rst);
 
+String presets[64] = { "11", "12", "13", "14", "15", "16", "17", "18", "21", "22", "23", "24", "25", "26", "27", "28", "31", "32", "33", "34", "35", "36", "37", "38", "41", "42", "43", "44", "45", "46", "47", "48", "51", "52", "53", "54", "55", "56", "57", "58", "61", "62", "63", "64", "65", "66", "67", "68", "71", "72", "73", "74", "75", "76", "77", "78", "81", "82", "83", "84", "85", "86", "87", "88"};
+
 String currentParameter = "";
 String currentValue = "";
 float currentFloatValue = 0.0;
@@ -83,60 +85,19 @@ void renderCurrentPatchPage()
   tft.setTextColor(ST7735_YELLOW);
   tft.setTextSize(1);
   tft.println(currentPgmNum);
-
+  int Patchnumber = currentPgmNum.toInt();
+  if (Patchnumber <= 64 )
+  {
+    tft.setFont(&FreeSans12pt7b);
+    tft.setCursor(65, 53);
+    tft.println("P:");
+    tft.setCursor(90, 53);
+    tft.setTextColor(ST7735_RED);
+    tft.setTextSize(1);
+    tft.println(presets[Patchnumber - 1]);
+  }
   tft.setTextColor(ST7735_BLACK);
   tft.setFont(&Org_01);
-
-  if (MIDIClkSignal) {
-    tft.fillRect(93, 28, 19, 7, ST77XX_ORANGE);
-    tft.setCursor(94, 33);
-    tft.println("CLK");
-  }
-
-//  tft.drawRect(115, 28, 12, 12, ST7735_BLUE);
-//  tft.drawRect(130, 28, 12, 12, ST7735_BLUE);
-//  tft.drawRect(145, 28, 12, 12, ST7735_BLUE);
-//  tft.drawRect(115, 43, 12, 12, ST7735_BLUE);
-//  tft.drawRect(130, 43, 12, 12, ST7735_BLUE);
-//  tft.drawRect(145, 43, 12, 12, ST7735_BLUE);
-
-
-//  if (voiceOn[0])
-//  {
-//    tft.fillRect(115, 28, 12, 12, ST7735_BLUE);
-//    tft.setCursor(120, 36);
-//    tft.println("1");
-//  }
-//  if (voiceOn[1])
-//  {
-//    tft.fillRect(130, 28, 12, 12, ST7735_BLUE);
-//    tft.setCursor(133, 36);
-//    tft.println("2");
-//  }
-//  if (voiceOn[2])
-//  {
-//    tft.fillRect(145, 28, 12, 12, ST7735_BLUE);
-//    tft.setCursor(148, 36);
-//    tft.println("3");
-//  }
-//  if (voiceOn[3])
-//  {
-//    tft.fillRect(115, 43, 12, 12, ST7735_BLUE);
-//    tft.setCursor(118, 51);
-//    tft.println("4");
-//  }
-//  if (voiceOn[4])
-//  {
-//    tft.fillRect(130, 43, 12, 12, ST7735_BLUE);
-//    tft.setCursor(133, 51);
-//    tft.println("5");
-//  }
-//  if (voiceOn[5])
-//  {
-//    tft.fillRect(145, 43, 12, 12, ST7735_BLUE);
-//    tft.setCursor(148, 51);
-//    tft.println("6");
-//  }
 
   tft.drawFastHLine(10, 62, tft.width() - 20, ST7735_RED);
   tft.setFont(&FreeSans12pt7b);
