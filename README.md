@@ -19,11 +19,13 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Master control sends all params for each patch from memory to the DW.
 * slave mode, edits the DWs own patches.
 * Reload of factory patches from the settings menu.
-* Dump of current patch as a sysex file.
-* Dump all patches over MIDI as sysex files (64).
+* Dump of current patch as a sysex file over MIDI to receiving device.
+* Dump all patches over MIDI as sysex files (64) to receiving device.
 * 128 waveform mod support with Param 14 (currently not working from pot, but param is stored).
+* Receives a Sysex Patch over MIDI and loads it into the Synth and editor
 
+  
 * Still to do, fix slave/master mode.
-* Accept sysex patches over MIDI would be good.
+
 
   
