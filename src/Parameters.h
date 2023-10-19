@@ -15,6 +15,7 @@ boolean recallPatchFlag = true;
 boolean loadFactory = false;
 boolean saveCurrent = false;
 boolean saveAll = false;
+boolean updateParams = false;  //(EEPROM)
 int bankselect = 0;
 
 int osc1_octave = 0;

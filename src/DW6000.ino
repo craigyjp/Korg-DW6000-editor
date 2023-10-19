@@ -57,7 +57,6 @@ boolean cardStatus = false;
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI);
 
 byte ccType = 2;        //(EEPROM)
-byte updateParams = 0;  //(EEPROM)
 
 #include "Settings.h"
 
@@ -338,7 +337,7 @@ void mySystemExclusiveChunk(byte *data, unsigned int length) {
 
   patchName = "Sysex Patch";
   updatePatchname();
-  
+
 }
 
 void myConvertControlChange(byte channel, byte number, byte value) {
@@ -1665,8 +1664,10 @@ void myProgramChange(byte channel, byte program) {
 
 void recallPatch(int patchNo) {
   allNotesOff();
+  if (!updateParams) {
   usbMIDI.sendProgramChange(patchNo - 1, midiOutCh);
   MIDI.sendProgramChange(patchNo - 1, midiOutCh);
+  }
   delay(50);
   recallPatchFlag = true;
   File patchFile = SD.open(String(patchNo).c_str());
@@ -1735,7 +1736,54 @@ void setCurrentPatchData(String data[]) {
 
   Serial.print("Set Patch: ");
   Serial.println(patchName);
+  if (updateParams) {
+    sendToSynthData();
+  }
 }
+
+void sendToSynthData() {
+  
+  updateosc1_octave();
+  updateosc1_waveform();
+  updateosc1_level();
+  updateosc2_octave();
+  updateosc2_waveform();
+  updateosc2_level();
+  updateosc2_interval();
+  updateosc2_detune();
+  updatenoise();
+  updatevcf_cutoff();
+  updatevcf_res();
+  updatevcf_kbdtrack();
+  updatevcf_polarity();
+  updatevcf_eg_intensity();
+  updatechorus();
+  updatevcf_attack();
+  updatevcf_decay();
+  updatevcf_breakpoint();
+  updatevcf_slope();
+  updatevcf_sustain();
+  updatevcf_release();
+  updatevca_attack();
+  updatevca_decay();
+  updatevca_breakpoint();
+  updatevca_slope();
+  updatevca_sustain();
+  updatevca_release();
+  updatemg_frequency();
+  updatemg_delay();
+  updatemg_osc();
+  updatemg_vcf();
+  updatebend_osc();
+  updatebend_vcf();
+  updateglide_time();
+  updatePoly1();
+  updatePoly2();
+  updateUnison();
+  updatewaveBank();
+
+}
+
 
 void sendToSynth(int row) {
 
@@ -1777,10 +1825,12 @@ void sendToSynth(int row) {
   updatePoly2();
   updateUnison();
   updatewaveBank();
-
+  
+  if (!updateParams) {
   delay(2);
   writeRequest[5] = row;
   MIDI.sendSysEx(sizeof(writeRequest), writeRequest);
+  }
 }
 
 String getCurrentPatchData() {
