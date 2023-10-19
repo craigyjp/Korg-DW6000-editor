@@ -26,14 +26,14 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 
 # CC to Sysex conversion
 
-osc1_octave 10
-osc1_waveform 11
-osc1_level 12
+* osc1_octave 10
+* osc1_waveform 11
+* osc1_level 12
 
-osc2_octave 13
-osc2_waveform 14
-osc2_level 15
-osc2_interval 16
+* osc2_octave 13
+* osc2_waveform 14
+* osc2_level 15
+* osc2_interval 16
 osc2_detune 17
 noise 18
 
