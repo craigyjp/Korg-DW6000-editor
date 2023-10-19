@@ -17,7 +17,7 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * USB to MIDI conversion.
 * CC message control.
 * Master control sends all params for each patch from memory to the DW.
-* slave mode, edits the DWs own patches.
+* Slave mode, edits the DWs own patches.
 * Reload of factory patches from the settings menu.
 * Dump of current patch as a sysex file over MIDI to receiving device.
 * Dump all patches over MIDI as sysex files (64) to receiving device.
@@ -25,7 +25,6 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Receives a Sysex Patch over MIDI and loads it into the Synth and editor
 
   
-* Still to do, fix slave/master mode.
 
 
   
