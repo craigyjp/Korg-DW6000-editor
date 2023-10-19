@@ -24,6 +24,55 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * 128 waveform mod support with Param 14 (currently not working from pot, but param is stored).
 * Receives a Sysex Patch over MIDI and loads it into the Synth and editor
 
+# CC to Sysex conversion
+
+osc1_octave 10
+osc1_waveform 11
+osc1_level 12
+
+osc2_octave 13
+osc2_waveform 14
+osc2_level 15
+osc2_interval 16
+osc2_detune 17
+noise 18
+
+vcf_cutoff 74
+vcf_res 71
+vcf_kbdtrack 21
+vcf_polarity 22
+vcf_eg_intensity 23
+chorus 93
+
+vcf_attack 25
+vcf_decay 26
+vcf_breakpoint 27
+vcf_slope 28
+vcf_sustain 29
+vcf_release 30
+
+vca_attack 31
+vca_decay 32
+vca_breakpoint 33
+vca_slope 34
+vca_sustain 35
+vca_release 36
+
+mg_frequency 37
+mg_delay 38
+mg_osc 39
+mg_vcf 40
+
+bend_osc 41
+bend_vcf 42
+glide_time 43
+
+wave_bank 44
+
+poly1 47
+poly2 48
+unison 49
+
   
 
 
