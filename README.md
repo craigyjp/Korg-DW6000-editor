@@ -23,6 +23,7 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Dump all patches over MIDI as sysex files (64) to receiving device.
 * 128 waveform mod support with Param 14 (currently not working from pot, but param is stored).
 * Receives a Sysex Patch over MIDI and loads it into the Synth and editor
+* Load existing DW6000 patches in to patches 1-64 of the editor.
 
 # CC to Sysex conversion
 
