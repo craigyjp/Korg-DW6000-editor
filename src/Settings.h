@@ -4,6 +4,7 @@ void settingsMIDICh();
 void settingsMIDIOutCh();
 void settingsEncoderDir();
 void settingsUpdateParams();
+void settingsLoadFromDW();
 void settingsLoadFactory();
 void settingsSaveCurrent();
 void settingsSaveAll();
@@ -12,6 +13,7 @@ int currentIndexMIDICh();
 int currentIndexMIDIOutCh();
 int currentIndexEncoderDir();
 int currentIndexUpdateParams();
+int currentIndexLoadFromDW();
 int currentIndexLoadFactory();
 int currentIndexSaveCurrent();
 int currentIndexSaveAll();
@@ -50,6 +52,15 @@ void settingsUpdateParams(int index, const char *value) {
     updateParams =  false;
   }
   storeUpdateParams(updateParams ? 1 : 0);
+}
+
+void settingsLoadFromDW(int index, const char *value) {
+  if (strcmp(value, "Yes") == 0) {
+    loadFromDW = true;
+  } else {
+    loadFromDW =  false;
+  }
+  storeLoadFromDW(loadFromDW);
 }
 
 void settingsLoadFactory(int index, const char *value) {
@@ -95,6 +106,10 @@ int currentIndexUpdateParams() {
   return getUpdateParams() ? 1 : 0;
 }
 
+int currentIndexLoadFromDW() {
+  return getLoadFromDW();
+}
+
 int currentIndexLoadFactory() {
   return getLoadFactory();
 }
@@ -113,6 +128,7 @@ void setUpSettings() {
   settings::append(settings::SettingsOption{"MIDI Out Ch.", {"Off", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "\0"}, settingsMIDIOutCh, currentIndexMIDIOutCh});
   settings::append(settings::SettingsOption{"Encoder", {"Type 1", "Type 2", "\0"}, settingsEncoderDir, currentIndexEncoderDir});
   settings::append(settings::SettingsOption{"MIDI Params", {"Off", "Send Params", "\0"}, settingsUpdateParams, currentIndexUpdateParams});
+  settings::append(settings::SettingsOption{"Load From DW", {"No", "Yes", "\0"}, settingsLoadFromDW, currentIndexLoadFromDW});
   settings::append(settings::SettingsOption{"Load factory", {"No", "Yes", "\0"}, settingsLoadFactory, currentIndexLoadFactory});
   settings::append(settings::SettingsOption{"Save Current", {"No", "Yes", "\0"}, settingsSaveCurrent, currentIndexSaveCurrent});
   settings::append(settings::SettingsOption{"Save All", {"No", "Yes", "\0"}, settingsSaveAll, currentIndexSaveAll});
