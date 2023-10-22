@@ -163,12 +163,12 @@ void myNoteOff(byte channel, byte note, byte velocity) {
 void checkLoadFromDW() {
   if (loadFromDW) {
     if (!dataInProgress) {
-        if (midiOutCh > 0) {
-          MIDI.sendProgramChange(currentSendPatch, midiOutCh);
-          delay(100);
-          MIDI.sendSysEx(sizeof(saveRequest), saveRequest);
-          dataInProgress = true;
-        }
+      if (midiOutCh > 0) {
+        MIDI.sendProgramChange(currentSendPatch, midiOutCh);
+        delay(100);
+        MIDI.sendSysEx(sizeof(saveRequest), saveRequest);
+        dataInProgress = true;
+      }
     }
   }
 }
@@ -186,15 +186,21 @@ void mySystemExclusiveChunk(byte *data, unsigned int length) {
           switch (polymode) {
             case 0:
               poly1 = 1;
+              poly2 = 0;
+              unison = 0;
               //updatePoly1();
               break;
 
             case 1:
+              poly1 = 0;
               poly2 = 1;
+              unison = 0;
               //updatePoly2();
               break;
 
             case 2:
+              poly1 = 0;
+              poly2 = 0;
               unison = 1;
               //updateUnison();
               break;
@@ -2036,7 +2042,9 @@ void sendToSynth(int row) {
   updatePoly2();
   updateUnison();
   updatewaveBank();
-
+  
+  Serial.print("Update Params ");
+  Serial.println(updateParams);
   if (!updateParams) {
     delay(2);
     writeRequest[5] = row;
@@ -2256,24 +2264,8 @@ void midiCCOut(byte cc, int param_offset, byte value) {
   byteArray[5] = param_offset;
   byteArray[6] = value;
 
-  switch (ccType) {
-    case 0:
-      if (midiOutCh > 0) {
-        MIDI.sendControlChange(cc, value, midiOutCh);  //MIDI DIN is set to Out
-      }
-      break;
-
-    case 1:
-      if (midiOutCh > 0) {
-        MIDI.sendControlChange(cc, value, midiOutCh);  //MIDI DIN is set to Out
-      }
-      break;
-
-    case 2:
-      if (midiOutCh > 0) {
-        MIDI.sendSysEx(sizeof(byteArray), byteArray);
-      }
-      break;
+  if (midiOutCh > 0) {
+    MIDI.sendSysEx(sizeof(byteArray), byteArray);
   }
 }
 
@@ -2698,7 +2690,7 @@ void checkLoadFactory() {
             osc2_level = intValues[i];
             break;
 
-          case 7:
+          case 7:  // osc2_interval
             intValues[i] = values[i].toInt();
             switch (intValues[i]) {
               case 1:
@@ -2719,9 +2711,9 @@ void checkLoadFactory() {
             }
             break;
 
-          case 8:
+          case 8:  // osc2_detune
             intValues[i] = values[i].toInt();
-            osc2_detune = (intValues[i] - 1);
+            osc2_detune = intValues[i];
             break;
 
           case 9:  // moise_level
@@ -2737,7 +2729,6 @@ void checkLoadFactory() {
           case 11:  // res
             intValues[i] = values[i].toInt();
             vcf_res = intValues[i];
-            ;
             break;
 
           case 12:  // kbdtrack
@@ -2848,7 +2839,6 @@ void checkLoadFactory() {
           case 33:  // bend_vcf
             intValues[i] = values[i].toInt();
             bend_vcf = intValues[i];
-            ;
             break;
 
           case 34:  // glide
@@ -2883,6 +2873,9 @@ void checkLoadFactory() {
       updatePatchname();
       recallPatchFlag = true;
       sendToSynth(row);
+      delay(2);
+      writeRequest[5] = row;
+      MIDI.sendSysEx(sizeof(writeRequest), writeRequest);
       recallPatchFlag = false;
     }
     loadPatches();
@@ -2894,6 +2887,7 @@ void checkLoadFactory() {
     delay(100);
     state = PARAMETER;
     recallPatch(1);
+    MIDI.sendProgramChange(0, midiOutCh);
   }
 }
 

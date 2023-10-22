@@ -20,6 +20,8 @@ boolean saveCurrent = false;
 boolean saveAll = false;
 boolean updateParams = false;  //(EEPROM)
 int bankselect = 0;
+int old_value = 0;
+int old_param_offset = 0;
 
 int osc1_octave = 0;
 int osc1_waveform = 0;
