@@ -34,6 +34,8 @@ int osc2_interval = 0;
 int osc2_detune = 0;
 
 int wave_bank = 0;
+int wave_banka = 0;
+int wave_bankb = 0;
 int temp_wave_bank = 0;
 
 int noise = 0;

@@ -210,11 +210,13 @@ void mySystemExclusiveChunk(byte *data, unsigned int length) {
         case 6:  // Parameter 1 - Portamento Time
           glide_time = data[n];
           //updateglide_time();
+          wave_banka = (data[n] >> 5) & 0x03;
           break;
 
         case 7:  // Parameter 2 - OSC1 Level
           osc1_level = data[n];
           //updateosc1_level();
+          wave_bankb = (data[n] >> 6) & 0x01;
           break;
 
         case 8:  // Parameter 3 - OSC2 Level
@@ -350,7 +352,7 @@ void mySystemExclusiveChunk(byte *data, unsigned int length) {
       }
     }
 
-    wave_bank = 0;
+    wave_bank = wave_banka + (wave_bankb << 2);
     //updatewaveBank();
     recallPatchFlag = false;
 
@@ -406,14 +408,16 @@ void mySystemExclusiveChunk(byte *data, unsigned int length) {
           }
           break;
 
-        case 6:  // Parameter 1 - Portamento Time
+        case 6:  // Parameter 1 - Portamento Time & Wavebank
           glide_time = data[n];
           updateglide_time();
+          wave_banka = (data[n] >> 5) & 0x03;
           break;
 
-        case 7:  // Parameter 2 - OSC1 Level
+        case 7:  // Parameter 2 - OSC1 Level & Wavebank
           osc1_level = data[n];
           updateosc1_level();
+          wave_bankb = (data[n] >> 6) & 0x01;
           break;
 
         case 8:  // Parameter 3 - OSC2 Level
@@ -549,7 +553,7 @@ void mySystemExclusiveChunk(byte *data, unsigned int length) {
       }
     }
 
-    wave_bank = 0;
+    wave_bank = wave_banka + (wave_bankb << 2);
     updatewaveBank();
     recallPatchFlag = false;
 
@@ -2042,7 +2046,7 @@ void sendToSynth(int row) {
   updatePoly2();
   updateUnison();
   updatewaveBank();
-  
+
   Serial.print("Update Params ");
   Serial.println(updateParams);
   if (!updateParams) {
@@ -2264,8 +2268,12 @@ void midiCCOut(byte cc, int param_offset, byte value) {
   byteArray[5] = param_offset;
   byteArray[6] = value;
 
-  if (midiOutCh > 0) {
-    MIDI.sendSysEx(sizeof(byteArray), byteArray);
+  if (value != old_value || param_offset != old_param_offset) {
+    if (midiOutCh > 0) {
+      MIDI.sendSysEx(sizeof(byteArray), byteArray);
+      old_value = value;
+      old_param_offset = param_offset;
+    }
   }
 }
 
