@@ -25,6 +25,19 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * Receives a Sysex Patch over MIDI and loads it into the Synth and editor
 * Load existing DW6000 patches in to patches 1-64 of the editor.
 
+# Operation
+
+* Send a Sysex patch to the DW6000 MIDI in and the editor will load the parameters into the editor and send them onto the DW6000, the patch name will be displayed as "Sysex Patch" and you can save it and rename it as you wish.
+* Send the current patch, this sends the current patch from the DW6000 out over MIDI as a Sysex packet and follows the standard for the DW6000.
+* Send all patches, this sends all 64 patches out over MIDI as 64 Sysex patches.
+* Send Params (Master Mode), sends all the parameters of the recalled editor patch to the DW6000, the program number of the DW6000 does not change, This allows you to have full access to the 999 patches that can be held in the editor.
+* Send Params (Off), send a program change to the DW6000 as you recall each patch, but does not send patch data on recall. It allows editing of existing patches in the DW6000 without over riding them.
+* Load from DW, this will receive all your current patches from the DW6000 into the editor, useful for when you already have customized patches in your DW6000. To do this you need to connect a MIDI lead from the MIDI out of the DW6000 to the MIDI in of the DW6000, a loop effectively. Each patch is then requested from the DW6000 from 11-88 and stored in editor locations 1-64. The patches are named "Patch 1", "Patch 2" etc as the DW6000 holds no patch name information. Its a tedious process but you can save and rename each patch with something memorable in the editor.
+* Load from Factory, a very dangerous option, but useful for some people, it loads all the factory sounds 11-88 into the DW6000 and the editor patches 1-64 with the same names as the factory patches.
+* MIDI channel, sets the operation channel of incoming data for the editor.
+* MIDI channel Out, sets the outgoing MIDI channel to the DW6000, really this can be left of channel 1. But if you do decide you want the DW6000 on a different transmit channel then you can set this MIDI out channel to match the DW6000 MIDI setting.
+* Encoder Direction, simply sets the direction of the encoder movement. Can be reversed if neccessary.
+  
 # CC to Sysex conversion
 
 * osc1_octave 10
