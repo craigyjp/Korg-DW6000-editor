@@ -1887,7 +1887,6 @@ void myProgramChange(byte channel, byte program) {
 void recallPatch(int patchNo) {
   allNotesOff();
   if (!updateParams) {
-    usbMIDI.sendProgramChange(patchNo - 1, midiOutCh);
     MIDI.sendProgramChange(patchNo - 1, midiOutCh);
   }
   delay(50);
@@ -2047,8 +2046,8 @@ void sendToSynth(int row) {
   updateUnison();
   updatewaveBank();
 
-  Serial.print("Update Params ");
-  Serial.println(updateParams);
+  // Serial.print("Update Params ");
+  // Serial.println(updateParams);
   if (!updateParams) {
     delay(2);
     writeRequest[5] = row;
