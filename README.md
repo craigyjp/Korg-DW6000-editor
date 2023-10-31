@@ -87,6 +87,12 @@ The editor board was a sandwich of proto board to get the spacing almost right t
 * poly2 48
 * unison 49
 
+# Resources
+
+DW6000 128 Waveform mod.
+
+https://hackaday.io/project/10113-project-72-korg-dw-6000-wave-memory-expansion
+
   
 
 
